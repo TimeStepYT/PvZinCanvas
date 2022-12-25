@@ -1,0 +1,38 @@
+body {
+    background-image: linear-gradient(#4EC2E9, lime, lime, #C8FF00, #C8FF00, lightgrey);
+    background-attachment: fixed;
+    margin: 0;
+}
+
+canvas {
+    display: block;
+    box-shadow: 0 0 0 5px green,
+        0 0 0 10px white;
+    border-radius: 5px;
+    -webkit-font-smoothing: none;
+}
+
+#game {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+#deltat {
+    margin-top: 30px;
+}
+
+@font-face {
+    font-family: 'BrianneTod';
+    src: url('Images/BRIANNETOD.TTF');
+}
+
+@font-face {
+    font-family: 'Continuum';
+    src: url('Images/contb.ttf');
+}
+
+@font-face {
+    font-family: 'Pico129';
+    src: url('Images/Pico129.ttf');
+}
