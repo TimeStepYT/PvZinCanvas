@@ -19,14 +19,14 @@ function drawSeedBank() {
         if (selPlants[i] == 0) {
             if (sun >= 100) {
                 if (selPlant == 0 && p.plant == 0) ctx.filter = "brightness(50%)"
-            } else selPlant = null
+            } else if (selPlant == 0) selPlant = null
             ctx.drawImage(seedPacket, packetX, 8, seedPacket.width / 2, seedPacket.height / 2)
             ctx.drawImage(PeashooterFrames[6], packetX + 5, 18, PeashooterFrames[0].width / 4, PeashooterFrames[0].height / 4)
             drawCost(100)
         } else if (selPlants[i] == 1) {
             if (sun >= 50) {
                 if (selPlant == 1 && p.plant == 1) ctx.filter = "brightness(50%)"
-            } else selPlant = null
+            } else if (selPlant == 1) selPlant = null
             ctx.drawImage(seedPacket, packetX, 8, seedPacket.width / 2, seedPacket.height / 2)
             ctx.drawImage(SunflowerFrames[6], packetX + 5, 18, SunflowerFrames[0].width / 4, SunflowerFrames[0].height / 4)
             drawCost(50)
