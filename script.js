@@ -124,7 +124,7 @@ onmousemove = function (e) {
             if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
                 if (xPos >= packetX && xPos <= packetX + seedPacket.width / 2) {
                     pointingOnClickable = true
-                    stopBankPointer = true
+                    break
                 } else {
                     pointingOnClickable = false
                 }
@@ -134,16 +134,13 @@ onmousemove = function (e) {
         }
     }
 
-    for (s = 0; s < suns.length; s++) {
-        if (!stopSunPointer) {
-            if (Math.sqrt((xPos - (suns[s]["x"] + sunImage.width / 4.5)) * (xPos - (suns[s]["x"] + sunImage.width / 4.5)) + (yPos - (suns[s]["y"] + sunImage.height / 4.5)) * (yPos - (suns[s]["y"] + sunImage.height / 4.5))) < (sunImage.height / 4.5 + 1) && !suns[s]["isCollected"]) {
-                pointingOnClickable = true
-                stopSunPointer = true
-            } else {
-                pointingOnClickable = false
-            }
-        }
-    }
+    suns.filter(s => Math.sqrt((xPos - (s["x"] + sunImage.width / 4.5)) * (xPos - (s["x"] + sunImage.width / 4.5)) + (yPos - (s["y"] + sunImage.height / 4.5)) * (yPos - (s["y"] + sunImage.height / 4.5))) < (sunImage.height / 4.5 + 1) && !s["isCollected"]).forEach(s => {
+
+        pointingOnClickable = true
+        stopSunPointer = true
+
+    })
+
     stopSunPointer = false
     stopBankPointer = false
     if (pointingOnClickable) canvas.style = "cursor: pointer;"
@@ -195,7 +192,7 @@ onkeydown = function (e) {
         selPlant = null
         p.plant = null
     } else if (e.key == "z") {
-        zombieFrame = 2500
+        addZombie()
     }
 }
 
