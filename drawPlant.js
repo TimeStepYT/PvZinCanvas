@@ -5,14 +5,14 @@ function drawPlant(plantArray, plantFrames, s, speed) {
     if (plantArray != []) {
 
         plantArray.forEach(plool => {
-            plool["animFrame"] += speed * dt
-            particularFrame = Math.round(plool["animFrame"]) % plantFrames.length
+            plool.animFrame += speed * dt
+            particularFrame = Math.round(plool.animFrame) % plantFrames.length
 
             ctx.drawImage(
                 plantFrames[particularFrame],
 
-                plool["x"],
-                plool["y"],
+                plool.x,
+                plool.y,
                 plws,
                 plhs
             )
@@ -34,7 +34,6 @@ function drawPrev(cost, plant, x, s, plantFrames) {
 
             ctx.drawImage(
                 plfr,
-
                 gridX - plwix,
                 gridY - plhis + 28,
                 plwis,
@@ -46,7 +45,6 @@ function drawPrev(cost, plant, x, s, plantFrames) {
 
         ctx.drawImage(
             plfr,
-
             xPos - plwix,
             yPos - plhis + 28,
             plwis,

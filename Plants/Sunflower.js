@@ -1,8 +1,8 @@
 sunFlowerSunSpawnRate = 2000
 
 function sunflowerActions() {
-    sunflowers.filter(s => s["sunSpawnFrame"] >= sunFlowerSunSpawnRate).forEach(s => {
-        s["sunSpawnFrame"] += dt
+    sunflowers.filter(s => s.sunSpawnFrame >= sunFlowerSunSpawnRate).forEach(s => {
+        s.sunSpawnFrame += dt
 
         var randX = Math.round(Math.random() * 60) - 30
 
@@ -17,6 +17,6 @@ function sunflowerActions() {
             "sunflowerSunTargetX": randX
         })
 
-        s["sunSpawnFrame"] = 0
+        s.sunSpawnFrame = 0
     })
 }
