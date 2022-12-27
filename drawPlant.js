@@ -1,4 +1,7 @@
 function drawPlant(plantArray, plantFrames, s, speed) {
+    plfr = plantFrames[0]
+    plws = plfr.width / s
+    plhs = plfr.height / s
     if (plantArray != []) {
 
         plantArray.forEach(plool => {
@@ -10,38 +13,44 @@ function drawPlant(plantArray, plantFrames, s, speed) {
 
                 plool["x"],
                 plool["y"],
-                plantFrames[0].width / s,
-                plantFrames[0].height / s
+                plws,
+                plhs
             )
         })
 
     }
 }
 
+
 function drawPrev(cost, plant, x, s, plantFrames) {
+    plfr = plantFrames[0]
+    plwis = plfr.width / s
+    plhis = plfr.height / s
+    plwix = plfr.width / x
+
     if (sun >= cost && selPlant == plant) {
         if (isFree()) {
             ctx.globalAlpha = 0.25
 
             ctx.drawImage(
-                plantFrames[0],
+                plfr,
 
-                gridX - plantFrames[0].width / x,
-                gridY - plantFrames[0].height / s + 28,
-                plantFrames[0].width / s,
-                plantFrames[0].height / s
+                gridX - plwix,
+                gridY - plhis + 28,
+                plwis,
+                plhis
             )
 
             ctx.globalAlpha = 1
         }
 
         ctx.drawImage(
-            plantFrames[0],
+            plfr,
 
-            xPos - plantFrames[0].width / x,
-            yPos - plantFrames[0].height / s + 28,
-            plantFrames[0].width / s,
-            plantFrames[0].height / s
+            xPos - plwix,
+            yPos - plhis + 28,
+            plwis,
+            plhis
         )
     }
 }

@@ -159,21 +159,18 @@ onmousedown = function (e) {
             p.place(selPlant)
             selPlant = null
         }
-        suns.forEach(s => {
-            if (
-                Math.sqrt(
-                    (xPos - (s["x"] + sunImage.width / 4.5)) *
-                    (xPos - (s["x"] + sunImage.width / 4.5)) +
-                    (yPos - (s["y"] + sunImage.height / 4.5)) *
-                    (yPos - (s["y"] + sunImage.height / 4.5))
-                ) <
-                sunImage.height / 4.5 + 1 &&
-                !s["isCollected"]
-            ) {
-                s["isCollected"] = true
-            }
+        suns.filter(s =>
+            Math.sqrt(
+                (xPos - (s["x"] + sunImage.width / 4.5)) *
+                (xPos - (s["x"] + sunImage.width / 4.5)) +
+                (yPos - (s["y"] + sunImage.height / 4.5)) *
+                (yPos - (s["y"] + sunImage.height / 4.5))
+            ) < sunImage.height / 4.5 + 1 &&
+            !s["isCollected"]).forEach(s => {
 
-        })
+                s["isCollected"] = true
+
+            })
     }
     else {
         selPlant = null

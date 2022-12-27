@@ -4,7 +4,11 @@ function drawPea(peaArray, s) {
         peaArray.forEach((parr, pi) => {
             parr["x"] += 5 * dt
 
-            zombies.filter(z => z["row"] == parr["row"] && parr["x"] >= z["x"] + ZombieWalk1Frames[0].width / 6).forEach((z, zi) => {
+            zombies.filter(z =>
+                z["row"] == parr["row"] &&
+                parr["x"] >= z["x"] + ZombieWalk1Frames[0].width / 6 &&
+                parr["x"] <= z["x"] + ZombieWalk1Frames[0].width / 2
+            ).forEach((z, zi) => {
                 peaArray.splice(pi, 1)
                 z["health"]--
                 if (z["health"] <= 0) {

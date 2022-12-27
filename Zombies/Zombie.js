@@ -20,12 +20,8 @@ function zombieActions() {
         addZombie()
         zombieFrame = 0
     }
-    zombies.forEach((z, zi) => {
-        if (!paused) {
-            if (z["x"] + ZombieWalk1Frames[0].width <= 0) {
-                zombies.splice(zi, 1)
-            }
-            z["x"] -= (1 / 6) * dt
-        }
+    zombies.filter(z => z["x"] + ZombieWalk1Frames[0].width <= 0).forEach((z, zi) => {
+        zombies.splice(zi, 1)
     })
+    zombies.forEach(z => z["x"] -= (1 / 6) * dt)
 }
