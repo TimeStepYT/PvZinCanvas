@@ -17,12 +17,12 @@ function drawSeedBank() {
         
 
         if (selPlants[i] == 0) {
-            if (selPlant == 0 && p.plant == 0) ctx.filter = "brightness(50%)"
+            if (selPlant == 0 && p.plant == 0 && sun >= 100) ctx.filter = "brightness(50%)"
             ctx.drawImage(seedPacket, packetX, 8, seedPacket.width / 2, seedPacket.height / 2)
             ctx.drawImage(PeashooterFrames[6], packetX + 5, 18, PeashooterFrames[0].width / 4, PeashooterFrames[0].height / 4)
             drawCost(100)
         } else if (selPlants[i] == 1) {
-            if (selPlant == 1 && p.plant == 1) ctx.filter = "brightness(50%)"
+            if (selPlant == 1 && p.plant == 1 && sun >= 50) ctx.filter = "brightness(50%)"
             ctx.drawImage(seedPacket, packetX, 8, seedPacket.width / 2, seedPacket.height / 2)
             ctx.drawImage(SunflowerFrames[6], packetX + 5, 18, SunflowerFrames[0].width / 4, SunflowerFrames[0].height / 4)
             drawCost(50)
