@@ -43,7 +43,5 @@ function drawPrev(cost, plant, x, s, plantFrames) {
             plantFrames[0].width / s,
             plantFrames[0].height / s
         )
-    } else {
-        selPlant = null
     }
 }

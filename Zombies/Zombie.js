@@ -17,8 +17,9 @@ function zombieActions() {
         })
         zombieFrame = 0
     }
-    zombies.forEach(z => {
+    zombies.forEach((z, zi) => {
         if (!paused) {
+            if (z["x"] + ZombieWalk1Frames.width / 2 <= 0) zombies.splice(zi, 1) 
             z["x"] -= (1 / 6) * dt
         }
     })
