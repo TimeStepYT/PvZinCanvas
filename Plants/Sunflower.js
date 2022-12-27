@@ -3,9 +3,8 @@ sunFlowerSunSpawnRate = 2000
 function sunflowerActions() {
     sunflowers.forEach(s => {
         s["sunSpawnFrame"] += dt
-        s["sunSpawnFrame"] %= sunFlowerSunSpawnRate
 
-        if (s["sunSpawnFrame"] >= sunFlowerSunSpawnRate / 2 && !s["sunSpawned"]) {
+        if (s["sunSpawnFrame"] >= sunFlowerSunSpawnRate) {
             var randX = Math.round(Math.random() * 60) - 30
 
             suns.push({
@@ -18,10 +17,8 @@ function sunflowerActions() {
                 "sunflowerSunSpawnAnimationFrame": s["y"] - 50,
                 "sunflowerSunTargetX": randX
             })
-
-            s["sunSpawned"] = true
-        } else if (s["sunSpawned"] && s["sunSpawnFrame"] <= sunFlowerSunSpawnRate / 2) {
-            s["sunSpawned"] = false
+            
+            s["sunSpawnFrame"] = 0
         }
     })
 

@@ -1,7 +1,13 @@
 sunflowers = []
 peashooters = []
 
+zombies = []
+
+peas = []
+
 lastUpdate = performance.now()
+
+paused = false
 
 function calcDeltaTime() {
     now = performance.now()
@@ -18,7 +24,7 @@ function getNearestGridElement() {
             )
         }
     )
-    
+
     gridY = GridY.reduce(
         function (prev, curr) {
             return (
@@ -29,18 +35,27 @@ function getNearestGridElement() {
 }
 
 function drawAll() {
-    ctx.drawImage(background1, -220, 0)
+    if (!paused) {
+        ctx.drawImage(background1, -220, 0)
 
-    drawSeedBank([1, 0])
+        drawSeedBank()
 
-    drawPlant(sunflowers, SunflowerFrames, 2, 0.301)
-    drawPlant(peashooters, PeashooterFrames, 2, 0.28)
+        drawPlant(sunflowers, SunflowerFrames, 2, 0.301)
+        drawPlant(peashooters, PeashooterFrames, 2, 0.28)
 
-    drawPrev(100, 0, 4, 2, PeashooterFrames)
-    drawPrev(50, 1, 4, 2, SunflowerFrames)
+        drawPrev(100, 0, 4, 2, PeashooterFrames)
+        drawPrev(50, 1, 4, 2, SunflowerFrames)
 
-    sunflowerActions()
-    sunStuff()
+        sunflowerActions()
+        peashooterActions()
+        zombieActions()
+
+        drawZombie(zombies, ZombieWalk1Frames, 1, 0.301)
+
+        drawPea(peas, 1)
+
+        sunStuff()
+    }
 }
 
 
@@ -48,7 +63,7 @@ function animate() {
     requestAnimationFrame(animate)
 
     if (bgLoaded && activeWindow) {
-
+        paused = false
         calcDeltaTime()
 
         getNearestGridElement()
@@ -56,6 +71,7 @@ function animate() {
         drawAll()
 
     } else if (!activeWindow) {
+        paused = true
         lastUpdate = performance.now()
     }
 }

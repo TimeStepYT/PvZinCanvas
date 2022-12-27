@@ -22,11 +22,13 @@ if (!isNaN(sunParam)) {
     sun = 50
 }
 
-
+selPlants = [0, 1]
 selPlant = null
 
 xPos = 0
 yPos = 0;
+
+pointingOnClickable = false
 
 activeWindow = true
 
@@ -103,6 +105,8 @@ gridY = 0
 function isFree() {
     return !(taken[gridX][gridY][0])
 }
+stopSunPointer = false
+stopBankPointer = false
 
 rect = canvas.getBoundingClientRect()
 ctx.imageSmoothingQuality = "high"
@@ -113,25 +117,71 @@ onmousemove = function (e) {
     xPos = e.clientX - rect.left
     yPos = e.clientY - rect.top
 
+    for (i = 0; i < selPlants.length; i++) {
+        if (!stopBankPointer) {
+            packetX = 89 + i * (365 / 6)
+
+            if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
+                if (xPos >= packetX && xPos <= packetX + seedPacket.width / 2) {
+                    pointingOnClickable = true
+                    stopBankPointer = true
+                } else {
+                    pointingOnClickable = false
+                }
+            } else {
+                pointingOnClickable = false
+            }
+        }
+    }
+
+    for (s = 0; s < suns.length; s++) {
+        if (!stopSunPointer) {
+            if (Math.sqrt((xPos - (suns[s]["x"] + sunImage.width / 4.5)) * (xPos - (suns[s]["x"] + sunImage.width / 4.5)) + (yPos - (suns[s]["y"] + sunImage.height / 4.5)) * (yPos - (suns[s]["y"] + sunImage.height / 4.5))) < (sunImage.height / 4.5 + 1) && !suns[s]["isCollected"]) {
+                pointingOnClickable = true
+                stopSunPointer = true
+            } else {
+                pointingOnClickable = false
+            }
+        }
+    }
+    stopSunPointer = false
+    stopBankPointer = false
+    if (pointingOnClickable) canvas.style = "cursor: pointer;"
+    else canvas.style = ""
 }
 
-onclick = function (e) {
+onmousedown = function (e) {
 
     xPos = e.clientX - rect.left
     yPos = e.clientY - rect.top
 
-    clickedAt = [xPos, yPos]
+    if (e.button == 0) {
+        clickedAt = [xPos, yPos]
 
-    if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {} else if (selPlant != null) {
-        p.place(selPlant)
-        selPlant = null
-    }
-    suns.forEach(function (s) {
-        if (Math.sqrt((xPos - (s["x"] + sunImage.width / 4.5)) * (xPos - (s["x"] + sunImage.width / 4.5)) + (yPos - (s["y"] + sunImage.height / 4.5)) * (yPos - (s["y"] + sunImage.height / 4.5))) < (sunImage.height / 4.5 + 1) && !s["isCollected"]) {
-            s["isCollected"] = true
+        if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) { } else if (selPlant != null) {
+            p.place(selPlant)
+            selPlant = null
         }
+        suns.forEach(s => {
+            if (
+                Math.sqrt(
+                    (xPos - (s["x"] + sunImage.width / 4.5)) *
+                    (xPos - (s["x"] + sunImage.width / 4.5)) +
+                    (yPos - (s["y"] + sunImage.height / 4.5)) *
+                    (yPos - (s["y"] + sunImage.height / 4.5))
+                ) <
+                sunImage.height / 4.5 + 1 &&
+                !s["isCollected"]
+            ) {
+                s["isCollected"] = true
+            }
 
-    })
+        })
+    }
+    else {
+        selPlant = null
+        p.plant = null
+    }
 }
 
 onkeydown = function (e) {
@@ -144,6 +194,8 @@ onkeydown = function (e) {
     } else if (e.key == "Escape") {
         selPlant = null
         p.plant = null
+    } else if (e.key == "z") {
+        zombieFrame = 2500
     }
 }
 

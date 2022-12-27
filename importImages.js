@@ -12,6 +12,12 @@ for (i = 0; i <= 55; i++) {
     SunflowerFrames[i].src = "Plants/SunflowerFrames/Sunflower" + i + ".png"
 }
 
+ZombieWalk1Frames = []
+for (i = 0; i <= 100; i++) {
+    ZombieWalk1Frames[i] = new Image()
+    ZombieWalk1Frames[i].src = "Zombies/ZombieWalk1Frames/ZombieWalk1 (" + i + ").png"
+}
+
 background1 = new Image()
 background1.src = "Images/background1.jpg"
 background1.onload = function () {
@@ -26,3 +32,6 @@ sunImage.src = "Images/Sun.png"
 
 seedPacket = new Image()
 seedPacket.src = "Images/SeedPacket.png"
+
+peaImage = new Image()
+peaImage.src = "Images/ProjectilePea.png"
