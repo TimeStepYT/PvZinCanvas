@@ -1,6 +1,8 @@
 var canvas = document.getElementById("hahacanvasfunni")
 var ctx = canvas.getContext("2d")
 
+
+
 canvas.width = 800
 canvas.height = 600
 clickedAt = [0, 0]
@@ -15,6 +17,8 @@ sunFrame = 0
 
 const urlParams = new URLSearchParams(window.location.search);
 const sunParam = parseInt(urlParams.get("sun"))
+
+const showHitboxes = parseInt(urlParams.get("showHitboxes"))
 
 if (!isNaN(sunParam)) {
     sun = sunParam
@@ -112,14 +116,20 @@ rect = canvas.getBoundingClientRect()
 ctx.imageSmoothingQuality = "high"
 
 onmousemove = function (e) {
+    pointingOnClickable = false
     rect = canvas.getBoundingClientRect()
 
     xPos = e.clientX - rect.left
     yPos = e.clientY - rect.top
 
     for (i = 0; i < selPlants.length; i++) {
+        selPlantPlant = selPlants[i]
+
         if (!stopBankPointer) {
             packetX = 89 + i * (365 / 6)
+            
+            if (selPlantPlant == 0 && sun < 100) continue
+            if (selPlantPlant == 1 && sun < 50) continue
 
             if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
                 if (xPos >= packetX && xPos <= packetX + seedPacket.width / 2) {
@@ -134,7 +144,18 @@ onmousemove = function (e) {
         }
     }
 
-    suns.filter(s => Math.sqrt((xPos - (s["x"] + sunImage.width / 4.5)) * (xPos - (s["x"] + sunImage.width / 4.5)) + (yPos - (s["y"] + sunImage.height / 4.5)) * (yPos - (s["y"] + sunImage.height / 4.5))) < (sunImage.height / 4.5 + 1) && !s["isCollected"]).forEach(s => {
+    uncollectedSunsOver = suns.filter(s =>
+        Math.sqrt(
+            (xPos - (s.x + sunImage.width / 4.5)) *
+            (xPos - (s.x + sunImage.width / 4.5)) +
+            (yPos - (s.y + sunImage.height / 4.5)) *
+            (yPos - (s.y + sunImage.height / 4.5))
+        ) <
+        (sunImage.height / 4.5 + 1) &&
+        !s["isCollected"]
+    )
+
+    uncollectedSunsOver.forEach(s => {
 
         pointingOnClickable = true
         stopSunPointer = true
@@ -155,22 +176,24 @@ onmousedown = function (e) {
     if (e.button == 0) {
         clickedAt = [xPos, yPos]
 
+        uncollectedSunsOver = suns.filter(s =>
+            Math.sqrt(
+                (xPos - (s.x + sunImage.width / 4.5)) *
+                (xPos - (s.x + sunImage.width / 4.5)) +
+                (yPos - (s.y + sunImage.height / 4.5)) *
+                (yPos - (s.y + sunImage.height / 4.5))) <
+            (sunImage.height / 4.5 + 1) && !s["isCollected"])
+
+        for (s of uncollectedSunsOver.reverse()) {
+            s.isCollected = true
+            clickedAt = [null, null]
+            return
+        }
+
         if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) { } else if (selPlant != null) {
             p.place(selPlant)
             selPlant = null
         }
-        suns.filter(s =>
-            Math.sqrt(
-                (xPos - (s["x"] + sunImage.width / 4.5)) *
-                (xPos - (s["x"] + sunImage.width / 4.5)) +
-                (yPos - (s["y"] + sunImage.height / 4.5)) *
-                (yPos - (s["y"] + sunImage.height / 4.5))
-            ) < sunImage.height / 4.5 + 1 &&
-            !s["isCollected"]).forEach(s => {
-
-                s["isCollected"] = true
-
-            })
     }
     else {
         selPlant = null

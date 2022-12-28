@@ -18,19 +18,27 @@ function drawSeedBank() {
 
         if (selPlants[i] == 0) {
             if (sun >= 100) {
-                if (selPlant == 0 && p.plant == 0) ctx.filter = "brightness(50%)"
+                if (selPlant == 0 && p.plant == 0) ctx.filter = "brightness(33%)"
             } else if (selPlant == 0) selPlant = null
+
+            if (sun < 100) ctx.filter = "brightness(67%)"
+
             ctx.drawImage(seedPacket, packetX, 8, seedPacket.width / 2, seedPacket.height / 2)
             ctx.drawImage(PeashooterFrames[6], packetX + 5, 18, PeashooterFrames[0].width / 4, PeashooterFrames[0].height / 4)
             drawCost(100)
+
         } else if (selPlants[i] == 1) {
             if (sun >= 50) {
-                if (selPlant == 1 && p.plant == 1) ctx.filter = "brightness(50%)"
+                if (selPlant == 1 && p.plant == 1) ctx.filter = "brightness(33%)"
             } else if (selPlant == 1) selPlant = null
+
+            if (sun < 50) ctx.filter = "brightness(67%)"
+            
             ctx.drawImage(seedPacket, packetX, 8, seedPacket.width / 2, seedPacket.height / 2)
             ctx.drawImage(SunflowerFrames[6], packetX + 5, 18, SunflowerFrames[0].width / 4, SunflowerFrames[0].height / 4)
             drawCost(50)
         }
+
         ctx.filter = "brightness(100%)"
         if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5) {
             if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + seedPacket.width / 2) {
