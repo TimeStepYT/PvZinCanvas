@@ -20,7 +20,7 @@ function getNearestGridElement() {
     gridX = GridX.reduce(
         function (prev, curr) {
             return (
-                Math.abs(curr - xPos) < Math.abs(prev - xPos) ? curr : prev
+                Math.abs(curr - xPos - cameraX) < Math.abs(prev - xPos - cameraX) ? (curr) : (prev)
             )
         }
     )
@@ -36,7 +36,7 @@ function getNearestGridElement() {
 
 function drawAll() {
     if (!paused) {
-        ctx.drawImage(background1, -220, 0)
+        ctx.drawImage(background1, -220 - cameraX, 0)
 
         drawSeedBank()
 

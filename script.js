@@ -1,7 +1,7 @@
 var canvas = document.getElementById("hahacanvasfunni")
 var ctx = canvas.getContext("2d")
 
-
+cameraX = 0
 
 canvas.width = 800
 canvas.height = 600
@@ -127,7 +127,7 @@ onmousemove = function (e) {
 
         if (!stopBankPointer) {
             packetX = 89 + i * (365 / 6)
-            
+
             if (selPlantPlant == 0 && sun < 100) continue
             if (selPlantPlant == 1 && sun < 50) continue
 
@@ -146,8 +146,8 @@ onmousemove = function (e) {
 
     uncollectedSunsOver = suns.filter(s =>
         Math.sqrt(
-            (xPos - (s.x + sunImage.width / 4.5)) *
-            (xPos - (s.x + sunImage.width / 4.5)) +
+            (xPos - (s.x - cameraX + sunImage.width / 4.5)) *
+            (xPos - (s.x - cameraX + sunImage.width / 4.5)) +
             (yPos - (s.y + sunImage.height / 4.5)) *
             (yPos - (s.y + sunImage.height / 4.5))
         ) <
@@ -178,19 +178,20 @@ onmousedown = function (e) {
 
         uncollectedSunsOver = suns.filter(s =>
             Math.sqrt(
-                (xPos - (s.x + sunImage.width / 4.5)) *
-                (xPos - (s.x + sunImage.width / 4.5)) +
+                (xPos - (s.x - cameraX + sunImage.width / 4.5)) *
+                (xPos - (s.x - cameraX + sunImage.width / 4.5)) +
                 (yPos - (s.y + sunImage.height / 4.5)) *
                 (yPos - (s.y + sunImage.height / 4.5))) <
             (sunImage.height / 4.5 + 1) && !s["isCollected"])
 
         for (s of uncollectedSunsOver.reverse()) {
             s.isCollected = true
+            s.x -= cameraX
             clickedAt = [null, null]
             return
         }
 
-        if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) { } else if (selPlant != null) {
+        if (!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && selPlant != null) {
             p.place(selPlant)
             selPlant = null
         }
@@ -213,6 +214,14 @@ onkeydown = function (e) {
         p.plant = null
     } else if (e.key == "z") {
         addZombie()
+    } else if (e.key == "a") {
+        cameraX -= 5
+        if (cameraX < -220) cameraX = -220
+    } else if (e.key == "d") {
+        cameraX += 5
+        if (cameraX > 380) cameraX = 380
+    } else if (e.key == "r") {
+        cameraX = 0
     }
 }
 

@@ -24,7 +24,7 @@ function sunStuff() {
             s.y = s["sunflowerSunSpawnAnimationFrame"] + (Math.pow(s.sunFrame - 27.4, 2) / 25) + 30
             s.x += (s["sunflowerSunTargetX"] / 55) * 0.5 * dt
         }
-        ctx.drawImage(sunImage, s.x, s.y, sunImage.width / 2, sunImage.height / 2)
+        ctx.drawImage(sunImage, s.x - cameraX, s.y, sunImage.width / 2, sunImage.height / 2)
         ctx.globalAlpha = 1
     })
 

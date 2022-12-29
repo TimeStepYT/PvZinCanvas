@@ -1,7 +1,7 @@
 function drawZombieFrame(zarr, zombieFrames, s, particularFrame) {
     ctx.drawImage(
         zombieFrames[particularFrame],
-        zarr.x,
+        zarr.x - cameraX,
         zarr.y,
         zombieFrames[0].width / s,
         zombieFrames[0].height / s
@@ -24,7 +24,7 @@ function drawZombie(zombieArray, zombieFrames, s, speed) {
 
         if (showHitboxes === 1) {
             ctx.strokeStyle = "red"
-            ctx.strokeRect(zarr.x + peaImage.width, zarr.y, ZombieWalk1Frames[0].width / 1.5, ZombieWalk1Frames[0].height)
+            ctx.strokeRect(zarr.x + peaImage.width - cameraX, zarr.y, ZombieWalk1Frames[0].width / 1.5, ZombieWalk1Frames[0].height)
         }
 
         drawZombieFrame(zarr, zombieFrames, s, particularFrame)

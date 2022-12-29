@@ -11,7 +11,7 @@ function drawPlant(plantArray, plantFrames, s, speed) {
             ctx.drawImage(
                 plantFrames[particularFrame],
 
-                plool.x,
+                plool.x - cameraX,
                 plool.y,
                 plws,
                 plhs
@@ -34,7 +34,7 @@ function drawPrev(cost, plant, x, s, plantFrames) {
 
             ctx.drawImage(
                 plfr,
-                gridX - plwix,
+                gridX - plwix - cameraX,
                 gridY - plhis + 28,
                 plwis,
                 plhis

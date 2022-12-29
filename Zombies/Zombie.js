@@ -2,18 +2,18 @@ zombieSpawnRate = 5000
 zombieFrame = -500
 
 zombrandYsel = [134, 233, 335, 425, 526]
-rows = [1, 2, 3, 4, 5]
-zwfh = ZombieWalk1Frames[0].height / 1.5
 
 function addZombie() {
     zombrandY = Math.round(Math.random() * 4)
-    zombies.push({
+    let zm = {
         "x": 800,
-        "y": zombrandYsel[zombrandY] - zwfh,
+        "y": zombrandYsel[zombrandY] - 106.6667,
         "animFrame": 0,
-        "row": rows[zombrandY],
+        "row": zombrandY + 1,
         "health": 10
-    })
+    }
+
+    zombies.push(zm);
     zombies.sort((a, b) => a.row - b.row);
 }
 function zombieActions() {

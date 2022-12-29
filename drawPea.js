@@ -18,12 +18,12 @@ function drawPea(peaArray, s) {
 
         if (showHitboxes === 1) {
             ctx.strokeStyle = "lime"
-            ctx.strokeRect(pea.x, pea.y, peaImage.width, peaImage.height)
+            ctx.strokeRect(pea.x - cameraX, pea.y, peaImage.width, peaImage.height)
         }
 
         ctx.drawImage(
             peaImage,
-            pea.x,
+            pea.x - cameraX,
             pea.y,
             peaImage.width / s,
             peaImage.height / s
