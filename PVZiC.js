@@ -149,7 +149,7 @@ class Game {
 				if (selPlantPlant == 1 && this.sun < 50) continue
 	
 				if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
-					if (xPos >= packetX && xPos <= packetX + seedPacket.width / 2) {
+					if (xPos >= this.packetX && xPos <= this.packetX + seedPacket.width / 2) {
 						this.pointingOnClickable = true
 						break
 					} else {
@@ -447,7 +447,7 @@ class Game {
                 if (this.startAnimationFrame >= 380) {
                     if (sun >= 100) {
                         if (this.selPlant == 0 && p.plant == 0) ctx.filter = "brightness(33%)"
-                    } else if (selPlant == 0) selPlant = null
+                    } else if (this.selPlant == 0) this.selPlant = null
                 }
                 if (sun < 100 || this.startAnimationFrame < 380) ctx.filter = "brightness(67%)"
 
@@ -472,7 +472,7 @@ class Game {
 		const clickedAt = this.clickedAt;
         if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5) {
             if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + seedPacket.width / 2) {
-                selPlant = selPlants[i]
+                this.selPlant = selPlants[i]
                 p.plant = selPlants[i]
             }
         }
