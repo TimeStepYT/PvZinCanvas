@@ -99,7 +99,7 @@ class Game {
                 if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
 
                 if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
-                    if (xPos >= this.packetX && xPos <= this.packetX + seedPacket.width / 2) {
+                    if (xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
                         this.pointingOnClickable = true
                         break
                     } else {
@@ -113,12 +113,12 @@ class Game {
 
         this.uncollectedSunsOver = this.suns.filter(s =>
             Math.sqrt(
-                (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) *
-                (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) +
-                (yPos - (s.y + sunImage.height / 4.5)) *
-                (yPos - (s.y + sunImage.height / 4.5))
+                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
+                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                (yPos - (s.y + images.sunImage.height / 4.5)) *
+                (yPos - (s.y + images.sunImage.height / 4.5))
             ) <
-            (sunImage.height / 4.5 + 1) &&
+            (images.sunImage.height / 4.5 + 1) &&
             !s["isCollected"]
         )
 
@@ -148,11 +148,11 @@ class Game {
 
             this.uncollectedSunsOver = this.suns.filter(s =>
                 Math.sqrt(
-                    (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) *
-                    (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) +
-                    (yPos - (s.y + sunImage.height / 4.5)) *
-                    (yPos - (s.y + sunImage.height / 4.5))) <
-                (sunImage.height / 4.5 + 1) && !s["isCollected"])
+                    (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
+                    (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                    (yPos - (s.y + images.sunImage.height / 4.5)) *
+                    (yPos - (s.y + images.sunImage.height / 4.5))) <
+                (images.sunImage.height / 4.5 + 1) && !s["isCollected"])
 
             for (let s of this.uncollectedSunsOver.reverse()) {
                 s.isCollected = true
@@ -234,8 +234,8 @@ class Game {
         zombieArray.forEach(zarr => {
             let particularFrame
             zarr.animFrame += Math.round(speed * this.dt);
-            if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % ZombieIdleFrames.length
-            else if (zarr.animVariation == 1) particularFrame = Math.round(zarr.animFrame) % ZombieIdle2Frames.length
+            if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdleFrames.length
+            else if (zarr.animVariation == 1) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdle2Frames.length
             else particularFrame = Math.round(zarr.animFrame) % zombieFrames.length
 
             if (zarr.hit) {
@@ -245,10 +245,10 @@ class Game {
 
             if (this.showHitboxes === 1) {
                 this.ctx.strokeStyle = "red"
-                this.ctx.strokeRect(zarr.x + peaImage.width - this.cameraX, zarr.y, ZombieWalk1Frames[0].width / 1.5, ZombieWalk1Frames[0].height)
+                this.ctx.strokeRect(zarr.x + images.peaImage.width - this.cameraX, zarr.y, images.ZombieWalk1Frames[0].width / 1.5, images.ZombieWalk1Frames[0].height)
             }
-            if (zarr.animVariation == 0) this.drawZombieFrame(zarr, ZombieIdleFrames, s, particularFrame)
-            else if (zarr.animVariation == 1) this.drawZombieFrame(zarr, ZombieIdle2Frames, s, particularFrame)
+            if (zarr.animVariation == 0) this.drawZombieFrame(zarr, images.ZombieIdleFrames, s, particularFrame)
+            else if (zarr.animVariation == 1) this.drawZombieFrame(zarr, images.ZombieIdle2Frames, s, particularFrame)
             else this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
             // this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
             this.ctx.filter = "brightness(100%)"
@@ -297,23 +297,23 @@ class Game {
 
     drawAll() {
         if (!this.paused) {
-            this.ctx.drawImage(background1, -220 - this.cameraX, 0)
+            this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
 
             this.drawSeedBank()
-            if (!this.startAnimationFinished) this.drawZombie(this.zombies, ZombieIdleFrames, 1, 0.301)
+            if (!this.startAnimationFinished) this.drawZombie(this.zombies, images.ZombieIdleFrames, 1, 0.301)
 
             if (this.startAnimationFinished) {
-                this.drawPlant(this.sunflowers, SunflowerFrames, 2, 0.301)
-                this.drawPlant(this.peashooters, PeashooterFrames, 2, 0.28)
+                this.drawPlant(this.sunflowers, images.SunflowerFrames, 2, 0.301)
+                this.drawPlant(this.peashooters, images.PeashooterFrames, 2, 0.28)
 
-                if (this.sun >= 100 && this.selPlant == 0) this.drawPrev(4, 2, PeashooterFrames)
-                else if (this.sun >= 50 && this.selPlant == 1) this.drawPrev(4, 2, SunflowerFrames)
+                if (this.sun >= 100 && this.selPlant == 0) this.drawPrev(4, 2, images.PeashooterFrames)
+                else if (this.sun >= 50 && this.selPlant == 1) this.drawPrev(4, 2, images.SunflowerFrames)
 
                 this.sunflowerActions()
                 this.peashooterActions()
                 this.zombieActions()
 
-                this.drawZombie(this.zombies, ZombieWalk1Frames, 1, 0.301)
+                this.drawZombie(this.zombies, images.ZombieWalk1Frames, 1, 0.301)
 
                 this.drawPea(this.peas, 1)
 
@@ -378,14 +378,14 @@ class Game {
     }
     packetX = undefined
     drawCost(cost) {
-        this.ctx.fillText(cost, Math.round(this.packetX + seedPacket.width - 69), 72 - this.seedBankY)
+        this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69), 72 - this.seedBankY)
     }
 
     drawSeedBank() {
         let ctx = this.ctx
         const sun = this.sun
         ctx.textRendering = "geometricPrecision"
-        ctx.drawImage(seedBankI, 10, 0 - this.seedBankY)
+        ctx.drawImage(images.seedBankI, 10, 0 - this.seedBankY)
         ctx.font = "19px Continuum"
         ctx.textAlign = "center"
         ctx.fillText(this.sun, 48, 78 - this.seedBankY)
@@ -406,8 +406,8 @@ class Game {
                 }
                 if (sun < 100 || this.seedBankY != 0) ctx.filter = "brightness(67%)"
 
-                ctx.drawImage(seedPacket, packetX, 8 - this.seedBankY, seedPacket.width / 2, seedPacket.height / 2)
-                ctx.drawImage(PeashooterFrames[6], packetX + 5, 18 - this.seedBankY, PeashooterFrames[0].width / 4, PeashooterFrames[0].height / 4)
+                ctx.drawImage(images.seedPacket, packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
+                ctx.drawImage(images.PeashooterFrames[6], packetX + 5, 18 - this.seedBankY, images.PeashooterFrames[0].width / 4, images.PeashooterFrames[0].height / 4)
                 this.drawCost(100)
 
             } else if (selPlants[i] == 1) {
@@ -418,15 +418,15 @@ class Game {
                 }
                 if (sun < 50 || this.seedBankY != 0) ctx.filter = "brightness(67%)"
 
-                ctx.drawImage(seedPacket, packetX, 8 - this.seedBankY, seedPacket.width / 2, seedPacket.height / 2)
-                ctx.drawImage(SunflowerFrames[6], packetX + 5, 18 - this.seedBankY, SunflowerFrames[0].width / 4, SunflowerFrames[0].height / 4)
+                ctx.drawImage(images.seedPacket, packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
+                ctx.drawImage(images.SunflowerFrames[6], packetX + 5, 18 - this.seedBankY, images.SunflowerFrames[0].width / 4, images.SunflowerFrames[0].height / 4)
                 this.drawCost(50)
             }
 
             ctx.filter = "brightness(100%)"
             var clickedAt = this.clickedAt;
             if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0) {
-                if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + seedPacket.width / 2) {
+                if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
                     this.selPlant = selPlants[i]
                     p.plant = selPlants[i]
                 }
@@ -546,7 +546,7 @@ class Game {
             if (p["peaFrame"] >= this.peashooterPeaSpawnRate / 2 && p["animFrame"] >= 39) {
                 for (let z of this.zombies.filter(z => p["row"] == z["row"] && p["x"] <= z["x"])) {
                     this.peas.push({
-                        "x": p["x"] + PeashooterFrames[0].width / 2 - peaImage.width,
+                        "x": p["x"] + images.PeashooterFrames[0].width / 2 - images.peaImage.width,
                         "y": p["y"] + 10,
                         "row": p.row
                     })
@@ -583,7 +583,7 @@ class Game {
             this.addZombie()
             this.zombieFrame = 0
         }
-        const zombiesDeleteable = this.zombies.filter(z => z.x + ZombieWalk1Frames[0].width <= 0 || z.health <= 0)
+        const zombiesDeleteable = this.zombies.filter(z => z.x + images.ZombieWalk1Frames[0].width <= 0 || z.health <= 0)
         for (let z of zombiesDeleteable) {
             this.zombies.splice(this.zombies.indexOf(z), 1)
             if (z.health <= 0) this.addZombie()
@@ -602,7 +602,7 @@ class Game {
             const collidingZombies = this.zombies.filter(zombie => (
                 zombie.row == pea.row &&
                 pea.x >= zombie.x &&
-                pea.x <= zombie.x + ZombieWalk1Frames[0].width / 1.5
+                pea.x <= zombie.x + images.ZombieWalk1Frames[0].width / 1.5
             ))
 
             for (let zombie of collidingZombies) {
@@ -614,15 +614,15 @@ class Game {
 
             if (this.showHitboxes === 1) {
                 ctx.strokeStyle = "lime"
-                ctx.strokeRect(pea.x - this.cameraX, pea.y, peaImage.width, peaImage.height)
+                ctx.strokeRect(pea.x - this.cameraX, pea.y, images.peaImage.width, images.peaImage.height)
             }
 
             ctx.drawImage(
-                peaImage,
+                images.peaImage,
                 pea.x - this.cameraX,
                 pea.y,
-                peaImage.width / s,
-                peaImage.height / s
+                images.peaImage.width / s,
+                images.peaImage.height / s
             );
             for (pea of peaArray.filter(pea => pea.x > 900)) {
                 peaArray.splice(peaIndex, 1);
@@ -658,7 +658,7 @@ class Game {
                 s.y = s["sunflowerSunSpawnAnimationFrame"] + (Math.pow(s.sunFrame - 27.4, 2) / 25) + 30
                 s.x += (s["sunflowerSunTargetX"] / 55) * 0.5 * dt
             }
-            ctx.drawImage(sunImage, s.x - this.cameraX, s.y, sunImage.width / 2, sunImage.height / 2)
+            ctx.drawImage(images.sunImage, s.x - this.cameraX, s.y, images.sunImage.width / 2, images.sunImage.height / 2)
             ctx.globalAlpha = 1
         })
 
@@ -674,7 +674,7 @@ class Game {
                 // this.running = false
                 break
             }
-            ctx.drawImage(sunImage, s.x, s.y, sunImage.width / 2, sunImage.height / 2)
+            ctx.drawImage(images.sunImage, s.x, s.y, images.sunImage.width / 2, images.sunImage.height / 2)
         }
     }
 }
@@ -692,8 +692,8 @@ class Plant {
             if (p.placeable == true) {
 
                 game.sunflowers.push({
-                    "x": gridX - SunflowerFrames[0].width / 4,
-                    "y": gridY - SunflowerFrames[0].height / 2 + 28,
+                    "x": gridX - images.SunflowerFrames[0].width / 4,
+                    "y": gridY - images.SunflowerFrames[0].height / 2 + 28,
                     "sunSpawnFrame": 0,
                     "animFrame": 0,
                     "sunSpawned": false
@@ -706,8 +706,8 @@ class Plant {
             const prow = game.GridY.indexOf(gridY) + 1
 
             game.peashooters.push({
-                "x": gridX - PeashooterFrames[0].width / 4,
-                "y": gridY - PeashooterFrames[0].height / 2 + 28,
+                "x": gridX - images.PeashooterFrames[0].width / 4,
+                "y": gridY - images.PeashooterFrames[0].height / 2 + 28,
                 "animFrame": 0,
                 "peaFrame": 40,
                 "alreadyShot": false,
@@ -719,54 +719,62 @@ class Plant {
         }
     }
 }
+
+class Images{
+    constructor(){
+        this.PeashooterFrames = []
+        for (let i = 0; i <= 40; i++) {
+            this.PeashooterFrames[i] = new Image()
+            this.PeashooterFrames[i].src = "Plants/PeashooterFrames/Peashooter" + i + ".png"
+        }
+        
+        this.SunflowerFrames = []
+        for (let i = 0; i <= 55; i++) {
+            this.SunflowerFrames[i] = new Image()
+            this.SunflowerFrames[i].src = "Plants/SunflowerFrames/Sunflower" + i + ".png"
+        }
+        
+        this.ZombieWalk1Frames = []
+        for (let i = 0; i <= 100; i++) {
+            this.ZombieWalk1Frames[i] = new Image()
+            this.ZombieWalk1Frames[i].src = "Zombies/ZombieWalk1Frames/ZombieWalk1 (" + i + ").png"
+        }
+        
+        this.ZombieIdleFrames = []
+        for (let i = 0; i <= 28; i++) {
+            this.ZombieIdleFrames[i] = new Image()
+            this.ZombieIdleFrames[i].src = "Zombies/ZombieIdleFrames/ZombieIdle (" + i + ").png"
+        }
+        
+        this.ZombieIdle2Frames = []
+        for (let i = 0; i <= 58; i++) {
+            this.ZombieIdle2Frames[i] = new Image()
+            this.ZombieIdle2Frames[i].src = "Zombies/ZombieIdle2Frames/ZombieIdle2 (" + i + ").png"
+        }
+        
+        this.background1 = new Image()
+        this.background1.src = "Images/background1.jpg"
+        this.background1.onload = function () {
+            game.bgLoaded = true
+        }
+        
+        this.seedBankI = new Image()
+        this.seedBankI.src = "Images/SeedBank.png"
+        
+        this.sunImage = new Image()
+        this.sunImage.src = "Images/Sun.png"
+        
+        this.seedPacket = new Image()
+        this.seedPacket.src = "Images/SeedPacket.png"
+        
+        this.peaImage = new Image()
+        this.peaImage.src = "Images/ProjectilePea.png"
+    }
+
+
+}
 p = new Plant(0, true)
 game = new Game()
+images = new Images()
 
 
-PeashooterFrames = []
-for (let i = 0; i <= 40; i++) {
-    PeashooterFrames[i] = new Image()
-    PeashooterFrames[i].src = "Plants/PeashooterFrames/Peashooter" + i + ".png"
-}
-
-SunflowerFrames = []
-for (let i = 0; i <= 55; i++) {
-    SunflowerFrames[i] = new Image()
-    SunflowerFrames[i].src = "Plants/SunflowerFrames/Sunflower" + i + ".png"
-}
-
-ZombieWalk1Frames = []
-for (let i = 0; i <= 100; i++) {
-    ZombieWalk1Frames[i] = new Image()
-    ZombieWalk1Frames[i].src = "Zombies/ZombieWalk1Frames/ZombieWalk1 (" + i + ").png"
-}
-
-ZombieIdleFrames = []
-for (let i = 0; i <= 28; i++) {
-    ZombieIdleFrames[i] = new Image()
-    ZombieIdleFrames[i].src = "Zombies/ZombieIdleFrames/ZombieIdle (" + i + ").png"
-}
-
-ZombieIdle2Frames = []
-for (let i = 0; i <= 58; i++) {
-    ZombieIdle2Frames[i] = new Image()
-    ZombieIdle2Frames[i].src = "Zombies/ZombieIdle2Frames/ZombieIdle2 (" + i + ").png"
-}
-
-background1 = new Image()
-background1.src = "Images/background1.jpg"
-background1.onload = function () {
-    game.bgLoaded = true
-}
-
-seedBankI = new Image()
-seedBankI.src = "Images/SeedBank.png"
-
-sunImage = new Image()
-sunImage.src = "Images/Sun.png"
-
-seedPacket = new Image()
-seedPacket.src = "Images/SeedPacket.png"
-
-peaImage = new Image()
-peaImage.src = "Images/ProjectilePea.png"
