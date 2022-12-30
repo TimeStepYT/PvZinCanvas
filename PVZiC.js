@@ -424,7 +424,7 @@ class Game {
             }
 
             ctx.filter = "brightness(100%)"
-            var clickedAt = this.clickedAt;
+            let  clickedAt = this.clickedAt;
             if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0) {
                 if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
                     this.selPlant = selPlants[i]
