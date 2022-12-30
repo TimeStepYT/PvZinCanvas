@@ -13,6 +13,22 @@ canvas {
     -webkit-tap-highlight-color: transparent;
 }
 
+canvas {
+    width: 97vw;
+    max-width: 800px;
+    height: auto;
+}
+
+@media screen and (min-width: 800px) {
+
+    /* The width is greater than the height */
+    canvas {
+        height: 90vh;
+        max-height: 600px;
+        width: auto;
+    }
+}
+
 #game {
     position: absolute;
     left: 50%;
