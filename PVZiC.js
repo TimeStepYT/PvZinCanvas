@@ -247,10 +247,15 @@ class Game {
                 this.ctx.strokeStyle = "red"
                 this.ctx.strokeRect(zarr.x + images.peaImage.width - this.cameraX, zarr.y, images.ZombieWalk1Frames[0].width / 1.5, images.ZombieWalk1Frames[0].height)
             }
-            if (zarr.animVariation == 0) this.drawZombieFrame(zarr, images.ZombieIdleFrames, s, particularFrame)
-            else if (zarr.animVariation == 1) this.drawZombieFrame(zarr, images.ZombieIdle2Frames, s, particularFrame)
-            else this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
-            // this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
+            if (zarr.animVariation == 0) {
+                for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdleFrames, s, particularFrame)
+            }
+            else if (zarr.animVariation == 1) {
+                for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdle2Frames, s, particularFrame)
+            }
+            else {
+                for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
+            }
             this.ctx.filter = "brightness(100%)"
 
         });
@@ -424,7 +429,7 @@ class Game {
             }
 
             ctx.filter = "brightness(100%)"
-            let  clickedAt = this.clickedAt;
+            let clickedAt = this.clickedAt;
             if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0) {
                 if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
                     this.selPlant = selPlants[i]
@@ -462,34 +467,34 @@ class Game {
 
 
     drawPrev(x, s, plantFrames) {
-       
-            const plfr = plantFrames[0]
-            const plwis = plfr.width / s
-            const plhis = plfr.height / s
-            const plwix = plfr.width / x
-            let ctx = this.ctx;
-            if (this.isFree()) {
-                ctx.globalAlpha = 0.25
 
-                ctx.drawImage(
-                    plfr,
-                    this.gridX - plwix - this.cameraX,
-                    this.gridY - plhis + 28,
-                    plwis,
-                    plhis
-                )
-
-                ctx.globalAlpha = 1
-            }
+        const plfr = plantFrames[0]
+        const plwis = plfr.width / s
+        const plhis = plfr.height / s
+        const plwix = plfr.width / x
+        let ctx = this.ctx;
+        if (this.isFree()) {
+            ctx.globalAlpha = 0.25
 
             ctx.drawImage(
                 plfr,
-                this.xPos - plwix,
-                this.yPos - plhis + 28,
+                this.gridX - plwix - this.cameraX,
+                this.gridY - plhis + 28,
                 plwis,
                 plhis
             )
-        
+
+            ctx.globalAlpha = 1
+        }
+
+        ctx.drawImage(
+            plfr,
+            this.xPos - plwix,
+            this.yPos - plhis + 28,
+            plwis,
+            plhis
+        )
+
     }
 
 
@@ -589,7 +594,7 @@ class Game {
             if (z.health <= 0) this.addZombie()
             break
         }
-        this.zombies.forEach(z => z.x -= (1 / 6) * this.dt)
+        this.zombies.forEach(z => z.x -= this.dt / 6)
     }
 
 
@@ -720,53 +725,53 @@ class Plant {
     }
 }
 
-class Images{
-    constructor(){
+class Images {
+    constructor() {
         this.PeashooterFrames = []
         for (let i = 0; i <= 40; i++) {
             this.PeashooterFrames[i] = new Image()
             this.PeashooterFrames[i].src = "Plants/PeashooterFrames/Peashooter" + i + ".png"
         }
-        
+
         this.SunflowerFrames = []
         for (let i = 0; i <= 55; i++) {
             this.SunflowerFrames[i] = new Image()
             this.SunflowerFrames[i].src = "Plants/SunflowerFrames/Sunflower" + i + ".png"
         }
-        
+
         this.ZombieWalk1Frames = []
         for (let i = 0; i <= 100; i++) {
             this.ZombieWalk1Frames[i] = new Image()
             this.ZombieWalk1Frames[i].src = "Zombies/ZombieWalk1Frames/ZombieWalk1 (" + i + ").png"
         }
-        
+
         this.ZombieIdleFrames = []
         for (let i = 0; i <= 28; i++) {
             this.ZombieIdleFrames[i] = new Image()
             this.ZombieIdleFrames[i].src = "Zombies/ZombieIdleFrames/ZombieIdle (" + i + ").png"
         }
-        
+
         this.ZombieIdle2Frames = []
         for (let i = 0; i <= 58; i++) {
             this.ZombieIdle2Frames[i] = new Image()
             this.ZombieIdle2Frames[i].src = "Zombies/ZombieIdle2Frames/ZombieIdle2 (" + i + ").png"
         }
-        
+
         this.background1 = new Image()
         this.background1.src = "Images/background1.jpg"
         this.background1.onload = function () {
             game.bgLoaded = true
         }
-        
+
         this.seedBankI = new Image()
         this.seedBankI.src = "Images/SeedBank.png"
-        
+
         this.sunImage = new Image()
         this.sunImage.src = "Images/Sun.png"
-        
+
         this.seedPacket = new Image()
         this.seedPacket.src = "Images/SeedPacket.png"
-        
+
         this.peaImage = new Image()
         this.peaImage.src = "Images/ProjectilePea.png"
     }
@@ -774,7 +779,8 @@ class Images{
 
 }
 p = new Plant(0, true)
-game = new Game()
 images = new Images()
+game = new Game()
+
 
 
