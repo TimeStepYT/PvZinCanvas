@@ -19,20 +19,19 @@ class Game {
         }
 
         this.inithooks()
-
         this.makeTakenDict()
 
         this.addRandZombies()
-
         requestAnimationFrame(() => this.animate())
     }
 
     inithooks() {
-        window.onkeydown = (e) => this.onkeydown(e);
+        window.onkeydown = e => this.onkeydown(e);
         window.onfocus = () => this.onfocus();
         window.onblur = () => this.onblur();
         window.onmousemove = e => this.onmousemove(e);
         window.onmousedown = e => this.onmousedown(e);
+        window.onerror = (errorMessage, file, lineNumber, columnNumber, error) => this.onerror(errorMessage, file, lineNumber, columnNumber, error);
     }
     addRandZombies() {
         for (let i = 0; i < 5; i++) {
@@ -78,7 +77,12 @@ class Game {
     uncollectedSunsOver = []
     stopSunPointer = false;
     stopSunPointer = false;
-
+    onerror(errorMessage, file, lineNumber, columnNumber, error) {
+        console.error("fart")
+        document.getElementById("error").innerHTML +=
+            errorMessage + " " + error + "<br>" +
+            file + ":" + lineNumber + ":" + columnNumber + "<br>"
+    }
     onmousemove(e) {
         this.pointingOnClickable = false
         let rect = this.canvas.getBoundingClientRect()
@@ -136,7 +140,6 @@ class Game {
     }
     clickedAt = [null, null]
     onmousedown(e) {
-
         let rect = this.rect
         let xPos = e.clientX - rect.left
         let yPos = e.clientY - rect.top
@@ -778,11 +781,7 @@ class Images {
 
 
 }
-onerror = function (errorMessage, file, lineNumber, columnNumber, error) {
-    document.getElementById("error").innerHTML +=
-    ```${errorMessage}\n
-    ${file}:${lineNumber}:${columnNumber}\n```
-}
+
 p = new Plant(0, true)
 images = new Images()
 game = new Game()
