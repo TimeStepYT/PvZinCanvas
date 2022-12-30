@@ -5,6 +5,7 @@ class Plant {
         this.plant = plant
         this.placeable = placeable
     }
+    
     place() {
         if (p.plant == 1 && sun >= 50 && isFree()) {
             if (p.placeable == true) {
