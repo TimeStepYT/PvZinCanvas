@@ -10,6 +10,7 @@ canvas {
         0 0 0 10px white;
     border-radius: 5px;
     -webkit-font-smoothing: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #game {
@@ -17,9 +18,6 @@ canvas {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-}
-#deltat {
-    margin-top: 30px;
 }
 
 @font-face {

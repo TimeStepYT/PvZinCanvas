@@ -119,108 +119,108 @@ class Game {
     xPos = 0
     yPos = 0
 
-	isFree()  {
-		return !(this.taken[this.gridX][this.gridY][0])
-	}
-	pointingOnClickable = false
-	selPlants = [0, 1]
-	suns = []
-	uncollectedSunsOver = []
-	stopSunPointer = false;
-	stopSunPointer = false;
-	
-	onmousemove(e) {
-		this.pointingOnClickable = false
-		let rect = this.canvas.getBoundingClientRect()
-		this.rect = rect
-	
-		let xPos = e.clientX - rect.left
-		let yPos = e.clientY - rect.top
-		this.xPos = xPos
-		this.yPos = yPos
-	
-		for (let i = 0; i < this.selPlants.length; i++) {
-			const selPlantPlant = this.selPlants[i]
-	
-			if (!this.stopBankPointer) {
-				this.packetX = 89 + i * (365 / 6)
-	
-				if (selPlantPlant == 0 && this.sun < 100) continue
-				if (selPlantPlant == 1 && this.sun < 50) continue
-	
-				if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
-					if (xPos >= this.packetX && xPos <= this.packetX + seedPacket.width / 2) {
-						this.pointingOnClickable = true
-						break
-					} else {
-						this.pointingOnClickable = false
-					}
-				} else {
-					this.pointingOnClickable = false
-				}
-			}
-		}
-	
-		this.uncollectedSunsOver = this.suns.filter(s =>
-			Math.sqrt(
-				(xPos - (s.x - this.cameraX + sunImage.width / 4.5)) *
-				(xPos - (s.x - this.cameraX + sunImage.width / 4.5)) +
-				(yPos - (s.y + sunImage.height / 4.5)) *
-				(yPos - (s.y + sunImage.height / 4.5))
-			) <
-			(sunImage.height / 4.5 + 1) &&
-			!s["isCollected"]
-		)
-	
-		this.uncollectedSunsOver.forEach(s => {
-	
-			this.pointingOnClickable = true
-			this.stopSunPointer = true
-	
-		})
-	
-		this.stopSunPointer = false
-		this.stopBankPointer = false
-		if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
-		else this.canvas.style = ""
-	}
-	clickedAt = [null,null]
-	onmousedown (e) {
-	
-		let rect = this.rect
-		let xPos = e.clientX - rect.left
-		let yPos = e.clientY - rect.top
-		this.xPos = xPos
-		this.yPos = yPos
-	
-		if (e.button == 0) {
-			this.clickedAt = [xPos, yPos]
-	
-			this.uncollectedSunsOver = this.suns.filter(s =>
-				Math.sqrt(
-					(xPos - (s.x - this.cameraX + sunImage.width / 4.5)) *
-					(xPos - (s.x - this.cameraX + sunImage.width / 4.5)) +
-					(yPos - (s.y + sunImage.height / 4.5)) *
-					(yPos - (s.y + sunImage.height / 4.5))) <
-				(sunImage.height / 4.5 + 1) && !s["isCollected"])
-	
-			for (let s of this.uncollectedSunsOver.reverse()) {
-				s.isCollected = true
-				s.x -= this.cameraX
-				this.clickedAt = [null, null]
-				return
-			}
-	
-			if (!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) {
-				p.place(this.selPlant)
-				this.selPlant = null
-			}
-		}
-		else {
-			this.selPlant = null
-			p.plant = null
-		}
-	}
+    isFree() {
+        return !(this.taken[this.gridX][this.gridY][0])
+    }
+    pointingOnClickable = false
+    selPlants = [0, 1]
+    suns = []
+    uncollectedSunsOver = []
+    stopSunPointer = false;
+    stopSunPointer = false;
+
+    onmousemove(e) {
+        this.pointingOnClickable = false
+        let rect = this.canvas.getBoundingClientRect()
+        this.rect = rect
+
+        let xPos = e.clientX - rect.left
+        let yPos = e.clientY - rect.top
+        this.xPos = xPos
+        this.yPos = yPos
+
+        for (let i = 0; i < this.selPlants.length; i++) {
+            const selPlantPlant = this.selPlants[i]
+
+            if (!this.stopBankPointer) {
+                this.packetX = 89 + i * (365 / 6)
+
+                if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
+                if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
+
+                if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
+                    if (xPos >= this.packetX && xPos <= this.packetX + seedPacket.width / 2) {
+                        this.pointingOnClickable = true
+                        break
+                    } else {
+                        this.pointingOnClickable = false
+                    }
+                } else {
+                    this.pointingOnClickable = false
+                }
+            }
+        }
+
+        this.uncollectedSunsOver = this.suns.filter(s =>
+            Math.sqrt(
+                (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) *
+                (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) +
+                (yPos - (s.y + sunImage.height / 4.5)) *
+                (yPos - (s.y + sunImage.height / 4.5))
+            ) <
+            (sunImage.height / 4.5 + 1) &&
+            !s["isCollected"]
+        )
+
+        this.uncollectedSunsOver.forEach(s => {
+
+            this.pointingOnClickable = true
+            this.stopSunPointer = true
+
+        })
+
+        this.stopSunPointer = false
+        this.stopBankPointer = false
+        if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
+        else this.canvas.style = ""
+    }
+    clickedAt = [null, null]
+    onmousedown(e) {
+
+        let rect = this.rect
+        let xPos = e.clientX - rect.left
+        let yPos = e.clientY - rect.top
+        this.xPos = xPos
+        this.yPos = yPos
+
+        if (e.button == 0) {
+            this.clickedAt = [xPos, yPos]
+
+            this.uncollectedSunsOver = this.suns.filter(s =>
+                Math.sqrt(
+                    (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) *
+                    (xPos - (s.x - this.cameraX + sunImage.width / 4.5)) +
+                    (yPos - (s.y + sunImage.height / 4.5)) *
+                    (yPos - (s.y + sunImage.height / 4.5))) <
+                (sunImage.height / 4.5 + 1) && !s["isCollected"])
+
+            for (let s of this.uncollectedSunsOver.reverse()) {
+                s.isCollected = true
+                s.x -= this.cameraX
+                this.clickedAt = [null, null]
+                return
+            }
+
+            if (!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) {
+                p.place(this.selPlant)
+                this.selPlant = null
+            }
+        }
+        else {
+            this.selPlant = null
+            p.plant = null
+        }
+    }
 
     cameraX = 0
     onkeydown(e) {
@@ -346,6 +346,7 @@ class Game {
             this.ctx.drawImage(background1, -220 - this.cameraX, 0)
 
             this.drawSeedBank()
+            if (!this.startAnimationFinished) this.drawZombie(this.zombies, ZombieIdleFrames, 1, 0.301)
 
             if (this.startAnimationFinished) {
                 this.drawPlant(this.sunflowers, SunflowerFrames, 2, 0.301)
@@ -397,7 +398,7 @@ class Game {
                         this.seedBankY = (((this.startAnimationFrame - 370) - 20) / 2.14) ** 2
                     } else if (this.startAnimationFrame >= 380) this.seedBankY = 0
 
-                    this.drawZombie(this.zombies, ZombieWalk1Frames, 1, 0.301)
+                    
                 }
             }
         }
@@ -444,40 +445,42 @@ class Game {
             const packetX = this.packetX
 
             if (selPlants[i] == 0) {
-                if (this.startAnimationFrame >= 380) {
+                if (this.seedBankY == 0) {
                     if (sun >= 100) {
                         if (this.selPlant == 0 && p.plant == 0) ctx.filter = "brightness(33%)"
                     } else if (this.selPlant == 0) this.selPlant = null
                 }
-                if (sun < 100 || this.startAnimationFrame < 380) ctx.filter = "brightness(67%)"
+                if (sun < 100 || this.seedBankY != 0) ctx.filter = "brightness(67%)"
 
                 ctx.drawImage(seedPacket, packetX, 8 - this.seedBankY, seedPacket.width / 2, seedPacket.height / 2)
                 ctx.drawImage(PeashooterFrames[6], packetX + 5, 18 - this.seedBankY, PeashooterFrames[0].width / 4, PeashooterFrames[0].height / 4)
                 this.drawCost(100)
 
             } else if (selPlants[i] == 1) {
-                if (this.startAnimationFrame >= 380) {
+                if (this.seedBankY == 0) {
                     if (sun >= 50) {
                         if (this.selPlant == 1 && p.plant == 1) ctx.filter = "brightness(33%)"
                     } else if (this.selPlant == 1) this.selPlant = null
                 }
-                if (sun < 50 || this.startAnimationFrame < 380) ctx.filter = "brightness(67%)"
+                if (sun < 50 || this.seedBankY != 0) ctx.filter = "brightness(67%)"
 
                 ctx.drawImage(seedPacket, packetX, 8 - this.seedBankY, seedPacket.width / 2, seedPacket.height / 2)
                 ctx.drawImage(SunflowerFrames[6], packetX + 5, 18 - this.seedBankY, SunflowerFrames[0].width / 4, SunflowerFrames[0].height / 4)
                 this.drawCost(50)
             }
 
-        ctx.filter = "brightness(100%)"
-		const clickedAt = this.clickedAt;
-        if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5) {
-            if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + seedPacket.width / 2) {
-                this.selPlant = selPlants[i]
-                p.plant = selPlants[i]
+            ctx.filter = "brightness(100%)"
+            var clickedAt = this.clickedAt;
+            if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0) {
+                if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + seedPacket.width / 2) {
+                    this.selPlant = selPlants[i]
+                    p.plant = selPlants[i]
+                }
+            } else if (this.seedBankY != 0) {
+                this.clickedAt = []
             }
         }
     }
-} 
 
 
     drawPlant(plantArray, plantFrames, s, speed) {
@@ -783,6 +786,12 @@ ZombieWalk1Frames = []
 for (let i = 0; i <= 100; i++) {
     ZombieWalk1Frames[i] = new Image()
     ZombieWalk1Frames[i].src = "Zombies/ZombieWalk1Frames/ZombieWalk1 (" + i + ").png"
+}
+
+ZombieIdleFrames = []
+for (let i = 0; i <= 28; i++) {
+    ZombieIdleFrames[i] = new Image()
+    ZombieIdleFrames[i].src = "Zombies/ZombieIdleFrames/ZombieIdle (" + i + ").png"
 }
 
 background1 = new Image()
