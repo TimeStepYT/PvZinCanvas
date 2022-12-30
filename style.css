@@ -34,3 +34,11 @@ canvas {
     font-family: 'Pico129';
     src: url('Images/Pico129.ttf');
 }
+
+#error {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: red;
+}

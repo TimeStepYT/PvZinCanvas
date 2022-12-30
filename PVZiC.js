@@ -778,6 +778,11 @@ class Images {
 
 
 }
+onerror = function (errorMessage, file, lineNumber, columnNumber, error) {
+    document.getElementById("error").innerHTML +=
+    ```${errorMessage}\n
+    ${file}:${lineNumber}:${columnNumber}\n```
+}
 p = new Plant(0, true)
 images = new Images()
 game = new Game()
