@@ -85,7 +85,7 @@ class Game {
     onmousemove(e) {
         this.pointingOnClickable = false
         let rect = this.canvas.getBoundingClientRect()
-        this.rect = rect
+        this.rect = this.rect
 
         let xPos = e.clientX - rect.left
         let yPos = e.clientY - rect.top
