@@ -38,7 +38,7 @@ class Game {
             this.zombies.push({
                 "x": Math.round(Math.random() * 100 + 890),
                 "y": Math.round(Math.random() * 346 + 115.5),
-                "animFrame": 0
+                "animFrame": Math.round(Math.random() * 28)
             })
         }
         this.zombies.sort((a, b) => a.y - b.y)
