@@ -128,7 +128,7 @@ class Game{
 	
 			if (!this.stopBankPointer) {
 				this.packetX = 89 + i * (365 / 6)
-	
+				const packetX = this.packetX
 				if (selPlantPlant == 0 && this.sun < 100) continue
 				if (selPlantPlant == 1 && this.sun < 50) continue
 	
@@ -416,7 +416,7 @@ packetX = undefined
 		const clickedAt = this.clickedAt;
         if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5) {
             if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + seedPacket.width / 2) {
-                selPlant = selPlants[i]
+                this.selPlant = selPlants[i]
                 p.plant = selPlants[i]
             }
         }
