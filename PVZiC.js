@@ -233,7 +233,7 @@ class Game {
 
         zombieArray.forEach(zarr => {
             let particularFrame
-            zarr.animFrame += Math.round(speed * this.dt);
+            zarr.animFrame += Math.round(this.dt);
             if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdleFrames.length
             else if (zarr.animVariation == 1) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdle2Frames.length
             else particularFrame = Math.round(zarr.animFrame) % zombieFrames.length
