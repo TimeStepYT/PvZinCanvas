@@ -78,7 +78,6 @@ class Game {
     stopSunPointer = false;
     stopSunPointer = false;
     onerror(errorMessage, file, lineNumber, columnNumber, error) {
-        console.error("fart")
         document.getElementById("error").innerHTML +=
             errorMessage + " " + error + "<br>" +
             file + ":" + lineNumber + ":" + columnNumber + "<br>"
@@ -94,7 +93,7 @@ class Game {
         this.yPos = yPos
 
         for (let i = 0; i < this.selPlants.length; i++) {
-            const selPlantPlant = this.selPlants[i]
+            const selPlantPlant = selPlants[i]
 
             if (!this.stopBankPointer) {
                 this.packetX = 89 + i * (365 / 6)
