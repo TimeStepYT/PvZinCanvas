@@ -20,6 +20,8 @@ class Game {
 
         this.inithooks()
 
+        this.makeTakenDict()
+
         this.addRandZombies()
 
         requestAnimationFrame(() => this.animate())
@@ -34,87 +36,35 @@ class Game {
     }
     addRandZombies() {
         for (let i = 0; i < 5; i++) {
+            const variation = Math.round(Math.random())
+            const animFrame = variation === 0 ? Math.round(Math.random() * 28) : Math.round(Math.random() * 58)
 
             this.zombies.push({
-                "x": Math.round(Math.random() * 100 + 890),
-                "y": Math.round(Math.random() * 346 + 115.5),
-                "animFrame": Math.round(Math.random() * 28)
+                x: Math.round(Math.random() * 100 + 890),
+                y: Math.round(Math.random() * 446 + 15.5),
+                animFrame,
+                animVariation: variation,
             })
         }
-        this.zombies.sort((a, b) => a.y - b.y)
+        this.zombies.sort((a, b) => a.y - b.y + b.x - a.x);
+
     }
 
-
-
-    taken = {
-        72: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        149: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        232: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        313: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        396: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        473: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        553: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        629: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        },
-        708: {
-            134: [false, null],
-            233: [false, null],
-            340: [false, null],
-            434: [false, null],
-            531: [false, null]
-        }
-    }
+    taken = {}
     GridX = [72, 149, 232, 313, 396, 473, 553, 629, 708]
     GridY = [134, 233, 340, 434, 531]
+
     gridX = 0
     gridY = 0
+
+    makeTakenDict() {
+        for (const x of this.GridX) {
+            this.taken[x] = {};
+            for (const y of this.GridY) {
+                this.taken[x][y] = [false];
+            }
+        }
+    }
 
     xPos = 0
     yPos = 0
@@ -278,12 +228,15 @@ class Game {
 
     drawZombie(zombieArray, zombieFrames, s, speed) {
         if (zombieArray.length === 0) {
-            return;
+            return
         }
 
         zombieArray.forEach(zarr => {
+            let particularFrame
             zarr.animFrame += Math.round(speed * this.dt);
-            const particularFrame = Math.round(zarr.animFrame) % zombieFrames.length;
+            if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % ZombieIdleFrames.length
+            else if (zarr.animVariation == 1) particularFrame = Math.round(zarr.animFrame) % ZombieIdle2Frames.length
+            else particularFrame = Math.round(zarr.animFrame) % zombieFrames.length
 
             if (zarr.hit) {
                 this.ctx.filter = "brightness(150%)"
@@ -294,8 +247,9 @@ class Game {
                 this.ctx.strokeStyle = "red"
                 this.ctx.strokeRect(zarr.x + peaImage.width - this.cameraX, zarr.y, ZombieWalk1Frames[0].width / 1.5, ZombieWalk1Frames[0].height)
             }
-
-            this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
+            if (zarr.animVariation == 0) this.drawZombieFrame(zarr, ZombieIdleFrames, s, particularFrame)
+            else if (zarr.animVariation == 1) this.drawZombieFrame(zarr, ZombieIdle2Frames, s, particularFrame)
+            else this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
             // this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
             this.ctx.filter = "brightness(100%)"
 
@@ -352,8 +306,8 @@ class Game {
                 this.drawPlant(this.sunflowers, SunflowerFrames, 2, 0.301)
                 this.drawPlant(this.peashooters, PeashooterFrames, 2, 0.28)
 
-                this.drawPrev(100, 0, 4, 2, PeashooterFrames)
-                this.drawPrev(50, 1, 4, 2, SunflowerFrames)
+                if (this.sun >= 100 && this.selPlant == 0) this.drawPrev(4, 2, PeashooterFrames)
+                else if (this.sun >= 50 && this.selPlant == 1) this.drawPrev(4, 2, SunflowerFrames)
 
                 this.sunflowerActions()
                 this.peashooterActions()
@@ -398,7 +352,7 @@ class Game {
                         this.seedBankY = (((this.startAnimationFrame - 370) - 20) / 2.14) ** 2
                     } else if (this.startAnimationFrame >= 380) this.seedBankY = 0
 
-                    
+
                 }
             }
         }
@@ -507,14 +461,13 @@ class Game {
     }
 
 
-    drawPrev(cost, plant, x, s, plantFrames) {
-        const plfr = plantFrames[0]
-        const plwis = plfr.width / s
-        const plhis = plfr.height / s
-        const plwix = plfr.width / x
-        let ctx = this.ctx;
-
-        if (this.sun >= cost && this.selPlant == plant) {
+    drawPrev(x, s, plantFrames) {
+       
+            const plfr = plantFrames[0]
+            const plwis = plfr.width / s
+            const plhis = plfr.height / s
+            const plwix = plfr.width / x
+            let ctx = this.ctx;
             if (this.isFree()) {
                 ctx.globalAlpha = 0.25
 
@@ -536,7 +489,7 @@ class Game {
                 plwis,
                 plhis
             )
-        }
+        
     }
 
 
@@ -792,6 +745,12 @@ ZombieIdleFrames = []
 for (let i = 0; i <= 28; i++) {
     ZombieIdleFrames[i] = new Image()
     ZombieIdleFrames[i].src = "Zombies/ZombieIdleFrames/ZombieIdle (" + i + ").png"
+}
+
+ZombieIdle2Frames = []
+for (let i = 0; i <= 58; i++) {
+    ZombieIdle2Frames[i] = new Image()
+    ZombieIdle2Frames[i].src = "Zombies/ZombieIdle2Frames/ZombieIdle2 (" + i + ").png"
 }
 
 background1 = new Image()
