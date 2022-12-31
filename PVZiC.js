@@ -20,7 +20,7 @@ class Game {
 
         this.inithooks()
         this.makeTakenDict()
-
+        this.createPrevVars()
         this.addRandZombies()
         requestAnimationFrame(() => this.animate())
     }
@@ -33,6 +33,13 @@ class Game {
         window.onmousedown = e => this.onmousedown(e);
         window.onerror = (errorMessage, file, lineNumber, columnNumber, error) => this.onerror(errorMessage, file, lineNumber, columnNumber, error);
     }
+
+    createPrevVars() {
+        this.plwis = images.SunflowerFrames[0].width / 2
+        this.plwix = images.SunflowerFrames[0].width / 4
+        this.plhis = images.SunflowerFrames[0].height / 2
+    }
+
     addRandZombies() {
         for (let i = 0; i < 5; i++) {
             const variation = Math.round(Math.random())
@@ -467,23 +474,19 @@ class Game {
         }
     }
 
-
     drawPrev(x, s, plantFrames) {
 
         const plfr = plantFrames[0]
-        const plwis = plfr.width / s
-        const plhis = plfr.height / s
-        const plwix = plfr.width / x
         let ctx = this.ctx;
         if (this.isFree()) {
             ctx.globalAlpha = 0.25
 
             ctx.drawImage(
                 plfr,
-                this.gridX - plwix - this.cameraX,
-                this.gridY - plhis + 28,
-                plwis,
-                plhis
+                this.gridX - this.plwix - this.cameraX,
+                this.gridY - this.plhis + 28,
+                this.plwis,
+                this.plhis
             )
 
             ctx.globalAlpha = 1
@@ -491,10 +494,10 @@ class Game {
 
         ctx.drawImage(
             plfr,
-            this.xPos - plwix,
-            this.yPos - plhis + 28,
-            plwis,
-            plhis
+            Math.round(this.xPos - this.plwix),
+            Math.round(this.yPos - this.plhis + 28),
+            this.plwis,
+            this.plhis
         )
 
     }
@@ -596,7 +599,11 @@ class Game {
             if (z.health <= 0) this.addZombie()
             break
         }
-        this.zombies.forEach(z => z.x -= this.dt / 6)
+        this.zombies.forEach(z => {
+            z.x -= this.dt / 6
+
+            
+        })
     }
 
 
