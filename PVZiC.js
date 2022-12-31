@@ -53,7 +53,6 @@ class Game {
             })
         }
         this.zombies.sort((a, b) => a.y - b.y + b.x - a.x);
-
     }
     eatingFrameRate = 50
     taken = {}
@@ -91,8 +90,8 @@ class Game {
     }
     onmousemove(e) {
         this.pointingOnClickable = false
-        let rect = this.canvas.getBoundingClientRect()
-        this.rect = this.rect
+        this.rect = this.canvas.getBoundingClientRect()
+        let rect = this.rect
 
         let xPos = e.clientX - rect.left
         let yPos = e.clientY - rect.top
@@ -204,13 +203,38 @@ class Game {
                 this.cameraX -= 5 * this.dt
                 if (this.cameraX < -220) this.cameraX = -220
                 break;
+            case 'ArrowLeft':
+                this.cameraX -= 5 * this.dt
+                if (this.cameraX < -220) this.cameraX = -220
+                break;
             case 'd':
+                this.cameraX += 5 * this.dt
+                if (this.cameraX > 380) this.cameraX = 380
+                break;
+            case 'ArrowRight':
                 this.cameraX += 5 * this.dt
                 if (this.cameraX > 380) this.cameraX = 380
                 break;
             case 'r':
                 this.cameraX = 0
                 break;
+
+        }
+        if (e.ctrlKey) {
+            switch (e.key) {
+                case 'a':
+                    this.cameraX = -220
+                    break;
+                case 'd':
+                    this.cameraX = 380
+                    break;
+                case 'ArrowLeft':
+                    this.cameraX = -220
+                    break;
+                case 'ArrowRight':
+                    this.cameraX = 380
+                    break;
+            }
         }
     }
 
@@ -237,15 +261,13 @@ class Game {
     }
 
     drawZombie(zombieArray, zombieFrames, s, speed) {
-        if (zombieArray.length === 0) {
-            return
-        }
+        if (zombieArray.length === 0) return
 
         zombieArray.forEach(zarr => {
             let particularFrame
             zarr.animFrame += this.dt * speed;
             if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdleFrames.length
-            else if (zarr.animVariation == 1) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdle2Frames.length
+            else if (zarr.animVariation == 1 || zarr.eating) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdle2Frames.length
             else particularFrame = Math.round(zarr.animFrame) % zombieFrames.length
 
             if (zarr.hit) {
@@ -257,17 +279,18 @@ class Game {
                 this.ctx.strokeStyle = "red"
                 this.ctx.strokeRect(zarr.x + images.peaImage.width - this.cameraX, zarr.y, images.ZombieWalk1Frames[0].width / 1.5, images.ZombieWalk1Frames[0].height)
             }
+
             if (zarr.animVariation == 0) {
                 for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdleFrames, s, particularFrame)
             }
-            else if (zarr.animVariation == 1) {
+            else if (zarr.animVariation == 1 || zarr.eating) {
                 for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdle2Frames, s, particularFrame)
             }
             else {
                 for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
             }
-            this.ctx.filter = "brightness(100%)"
 
+            this.ctx.filter = "brightness(100%)"
         });
 
     }
@@ -444,6 +467,7 @@ class Game {
                 if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
                     this.selPlant = selPlants[i]
                     p.plant = selPlants[i]
+                    this.clickedAt = []
                 }
             } else if (this.seedBankY != 0) {
                 this.clickedAt = []
@@ -458,7 +482,7 @@ class Game {
         const plhs = plfr.height / s
         if (plantArray != []) {
 
-            plantArray.forEach(plool => {
+            plantArray.filter(p => p.health > 0).forEach(plool => {
                 plool.animFrame += speed * this.dt
                 const particularFrame = Math.round(plool.animFrame) % plantFrames.length
 
@@ -605,10 +629,10 @@ class Game {
         }
         this.zombies.filter(z => !z.eating).forEach(z => {
             if (this.activeWindow) z.x -= this.dt / 8
-            for (const plant of p.filteredPlantsArray(p => z.x <= p.x + images.PeashooterFrames[0].width / 6 && z.x >= p.x && z.row == p.row)) {
+            for (const plant of p.filteredPlantsArray(p => z.x <= p.x + images.PeashooterFrames[0].width / 4 && z.x >= p.x && z.row == p.row)) {
                 for (const i = 0; i < plant.length; i++) {
                     z.eating = true
-                    console.log("eating")
+
                     break
                 }
             }
@@ -617,7 +641,7 @@ class Game {
         for (const z of this.zombies.filter(z => z.eating)) {
             if (z.eatingFrame >= this.eatingFrameRate) {
                 z.eatingFrame = 0
-                for (const plant of p.filteredPlantsArray(p => p.row == z.row && p.x + images.PeashooterFrames[0].width / 6 > z.x && p.x < z.x)) {
+                for (const plant of p.filteredPlantsArray(p => p.row == z.row && p.x + images.PeashooterFrames[0].width / 4 > z.x && p.x < z.x)) {
                     for (const pl of plant) {
                         pl.health--
                         pl.hurt = true
@@ -635,10 +659,12 @@ class Game {
 
 
     drawPea(peaArray, s) {
+        if (peaArray == []) return
+
         const ctx = this.ctx
         for (let pea of peaArray) {
             const peaIndex = peaArray.indexOf(pea)
-            pea.x += 3 * this.dt;
+            pea.x += 4 * this.dt;
 
             const collidingZombies = this.zombies.filter(zombie => (
                 zombie.row == pea.row &&
@@ -727,10 +753,16 @@ class Plant {
     }
 
     removePlant(col, row) {
-        for (let plants of this.filteredPlantsArray(p => p.col == col && p.row == row)) {
-            for (let pl of plants) {
-                console.log(pl.health)
-                plants.splice(plants.indexOf(pl), 1)
+        for (const plants of this.plantsArray()) {
+            for (const pl of plants) {
+                if (pl.col == col && pl.row == row) {
+                    if (game.sunflowers.indexOf(pl) >= 0) game.sunflowers.splice(game.sunflowers.indexOf(pl), 1);
+                    else if (game.peashooters.indexOf(pl) >= 0) game.peashooters.splice(game.peashooters.indexOf(pl), 1);
+                    game.taken[game.GridX[col - 1]][game.GridY[row - 1]] = [false]
+                    for (const zo of game.zombies.filter(z => z.eating && z.row == pl.row && pl.x + images.PeashooterFrames[0].width / 4 > z.x && pl.x < z.x)) {
+                        zo.eating = false
+                    }
+                }
             }
         }
     }
