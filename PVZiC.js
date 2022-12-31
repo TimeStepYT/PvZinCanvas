@@ -78,9 +78,9 @@ class Game {
     stopSunPointer = false;
     stopSunPointer = false;
     onerror(errorMessage, file, lineNumber, columnNumber, error) {
-        document.getElementById("error").innerHTML +=
-            errorMessage + " " + error + "<br>" +
-            file + ":" + lineNumber + ":" + columnNumber + "<br>"
+        document.getElementById("error").innerHTML += `
+            ${errorMessage} ${error}<br>
+            ${file}:${lineNumber}:${columnNumber}<br>`
     }
     onmousemove(e) {
         this.pointingOnClickable = false
