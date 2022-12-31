@@ -55,7 +55,7 @@ class Game {
         this.zombies.sort((a, b) => a.y - b.y + b.x - a.x);
 
     }
-
+    eatingFrameRate = 50
     taken = {}
     GridX = [72, 149, 232, 313, 396, 473, 553, 629, 708]
     GridY = [134, 233, 340, 434, 531]
@@ -183,6 +183,7 @@ class Game {
 
     cameraX = 0
     onkeydown(e) {
+        if (!this.seedBankY == 0) return
         switch (e.key) {
             case '1':
                 this.selPlant = 0
@@ -327,7 +328,7 @@ class Game {
                 this.peashooterActions()
                 this.zombieActions()
 
-                this.drawZombie(this.zombies, images.ZombieWalk1Frames, 1, 0.301)
+                this.drawZombie(this.zombies, images.ZombieWalk1Frames, 1, 0.2)
 
                 this.drawPea(this.peas, 1)
 
@@ -573,6 +574,7 @@ class Game {
     zombieFrame = -1650
 
     zombrandYsel = [134, 233, 335, 425, 526]
+
     addZombie() {
         const zombrandY = Math.round(Math.random() * 4)
         let zm = {
@@ -580,7 +582,9 @@ class Game {
             "y": this.zombrandYsel[zombrandY] - 106.6667,
             "animFrame": 0,
             "row": zombrandY + 1,
-            "health": 10
+            "health": 10,
+            "eating": false,
+            "eatingFrame": 0
         }
 
         this.zombies.push(zm);
@@ -599,11 +603,34 @@ class Game {
             if (z.health <= 0) this.addZombie()
             break
         }
-        this.zombies.forEach(z => {
-            z.x -= this.dt / 6
-
-            
+        this.zombies.filter(z => !z.eating).forEach(z => {
+            if (this.activeWindow) z.x -= this.dt / 8
+            for (const plant of p.filteredPlantsArray(p => z.x <= p.x + images.PeashooterFrames[0].width / 6 && z.x >= p.x && z.row == p.row)) {
+                for (const i = 0; i < plant.length; i++) {
+                    z.eating = true
+                    console.log("eating")
+                    break
+                }
+            }
         })
+
+        for (const z of this.zombies.filter(z => z.eating)) {
+            if (z.eatingFrame >= this.eatingFrameRate) {
+                z.eatingFrame = 0
+                for (const plant of p.filteredPlantsArray(p => p.row == z.row && p.x + images.PeashooterFrames[0].width / 6 > z.x && p.x < z.x)) {
+                    for (const pl of plant) {
+                        pl.health--
+                        pl.hurt = true
+                        if (pl.health <= 0) {
+                            p.removePlant(pl.col, pl.row)
+                            break
+                        }
+                    }
+                }
+            } else {
+                z.eatingFrame += this.dt
+            }
+        }
     }
 
 
@@ -611,7 +638,7 @@ class Game {
         const ctx = this.ctx
         for (let pea of peaArray) {
             const peaIndex = peaArray.indexOf(pea)
-            pea.x += 5 * this.dt;
+            pea.x += 3 * this.dt;
 
             const collidingZombies = this.zombies.filter(zombie => (
                 zombie.row == pea.row &&
@@ -699,6 +726,27 @@ class Plant {
         this.placeable = placeable
     }
 
+    removePlant(col, row) {
+        for (let plants of this.filteredPlantsArray(p => p.col == col && p.row == row)) {
+            for (let pl of plants) {
+                console.log(pl.health)
+                plants.splice(plants.indexOf(pl), 1)
+            }
+        }
+    }
+
+    plantsArray() {
+        return [game.sunflowers, game.peashooters]
+    }
+
+    filteredPlantsArray(filter) {
+        const plants = []
+        for (const i of this.plantsArray()) {
+            plants.push(i.filter(filter))
+        }
+        return plants
+    }
+
     place() {
         const gridX = game.gridX
         const gridY = game.gridY
@@ -710,22 +758,25 @@ class Plant {
                     "y": gridY - images.SunflowerFrames[0].height / 2 + 28,
                     "sunSpawnFrame": 0,
                     "animFrame": 0,
-                    "sunSpawned": false
+                    "sunSpawned": false,
+                    "health": 6,
+                    "row": game.GridY.indexOf(gridY) + 1,
+                    "col": game.GridX.indexOf(gridX) + 1
                 })
 
                 game.taken[gridX][gridY] = [true, 1]
                 game.sun -= 50
             }
         } else if (p.plant == 0 && game.sun >= 100 && game.isFree() && p.placeable) {
-            const prow = game.GridY.indexOf(gridY) + 1
-
             game.peashooters.push({
                 "x": gridX - images.PeashooterFrames[0].width / 4,
                 "y": gridY - images.PeashooterFrames[0].height / 2 + 28,
                 "animFrame": 0,
                 "peaFrame": 40,
                 "alreadyShot": false,
-                "row": prow
+                "row": game.GridY.indexOf(gridY) + 1,
+                "col": game.GridX.indexOf(gridX) + 1,
+                "health": 6
             })
 
             game.taken[gridX][gridY] = [true, 0]
@@ -791,6 +842,3 @@ class Images {
 p = new Plant(0, true)
 images = new Images()
 game = new Game()
-
-
-
