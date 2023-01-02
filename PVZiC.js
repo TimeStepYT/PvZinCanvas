@@ -398,9 +398,10 @@ class Game {
 
     paused = false
     bgLoaded = false
+    sunflowerloaded = false
     animate() {
 
-        if (this.bgLoaded && this.activeWindow) {
+        if (this.activeWindow) {
             this.paused = false
             this.calcDeltaTime()
 
@@ -408,7 +409,7 @@ class Game {
 
             this.drawAll()
 
-        } else if (!this.activeWindow) {
+        } else {
             this.paused = true
             this.lastUpdate = performance.now()
         }
@@ -854,7 +855,9 @@ class Images {
         this.background1.onload = function () {
             game.bgLoaded = true
         }
-
+        this.SunflowerFrames[55].onload = () => {
+            game.sunflowerloaded = true
+        }
         this.seedBankI = new Image()
         this.seedBankI.src = "Images/SeedBank.png"
 
@@ -873,4 +876,9 @@ class Images {
 
 p = new Plant(0, true)
 images = new Images()
-game = new Game()
+waituntilimagesloaded = setInterval( e => {
+    if (game.bgLoaded) {
+        game = new Game()
+        clearInterval(waituntilimagesloaded)
+    }
+}, 0)
