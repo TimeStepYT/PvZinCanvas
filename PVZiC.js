@@ -241,6 +241,9 @@ class Game {
             case 'r':
                 this.cameraX = 0
                 break;
+            case 'Dead':
+                this.shovelSelected = !this.shovelSelected
+                break;
 
         }
         if (e.ctrlKey) {
@@ -512,6 +515,10 @@ class Game {
                 plool.animFrame += speed * this.dt
                 const particularFrame = Math.round(plool.animFrame) % plantFrames.length
                 if (this.shovelSelected && this.GridX.indexOf(this.gridX) + 1 == plool.col && this.GridY.indexOf(this.gridY) + 1 == plool.row) ctx.globalAlpha = 0.75
+                if (plool.hurt) {
+                    this.ctx.filter = "brightness(150%)"
+                    plool.hurt = false
+                }
                 this.ctx.drawImage(
                     plantFrames[particularFrame],
 
@@ -521,6 +528,7 @@ class Game {
                     plhs
                 )
                 ctx.globalAlpha = 1
+                ctx.filter = "brightness(100%)"
             })
 
         }
