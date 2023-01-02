@@ -34,7 +34,7 @@ class Game {
         this.addRandZombies()
         requestAnimationFrame(() => this.animate())
     }
-
+    shovelSelected = false
     inithooks() {
         window.onkeydown = e => this.onkeydown(e);
         window.onfocus = () => this.onfocus();
@@ -99,59 +99,63 @@ class Game {
             ${file}:${lineNumber}:${columnNumber}<br>`
     }
     onmousemove(e) {
-        this.pointingOnClickable = false
-        this.rect = this.canvas.getBoundingClientRect()
-        let rect = this.rect
+        if (this.startAnimationFinished) {
+            this.pointingOnClickable = false
+            this.rect = this.canvas.getBoundingClientRect()
+            let rect = this.rect
 
-        let xPos = e.clientX - rect.left
-        let yPos = e.clientY - rect.top
-        this.xPos = xPos
-        this.yPos = yPos
+            let xPos = e.clientX - rect.left
+            let yPos = e.clientY - rect.top
+            this.xPos = xPos
+            this.yPos = yPos
 
-        for (let i = 0; i < this.selPlants.length; i++) {
-            const selPlantPlant = this.selPlants[i]
+            for (let i = 0; i < this.selPlants.length; i++) {
+                const selPlantPlant = this.selPlants[i]
 
-            if (!this.stopBankPointer) {
-                this.packetX = 89 + i * (365 / 6)
+                if (!this.stopBankPointer) {
+                    this.packetX = 89 + i * (365 / 6)
 
-                if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
-                if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
+                    if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
+                    if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
 
-                if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
-                    if (xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
-                        this.pointingOnClickable = true
-                        break
+                    if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
+                        if (xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
+                            this.pointingOnClickable = true
+                            break
+                        } else {
+                            this.pointingOnClickable = false
+                        }
                     } else {
                         this.pointingOnClickable = false
                     }
-                } else {
-                    this.pointingOnClickable = false
                 }
             }
+
+            if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
+
+            if (!this.shovelSelected) {
+                this.uncollectedSunsOver = this.suns.filter(s =>
+                    Math.sqrt(
+                        (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
+                        (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                        (yPos - (s.y + images.sunImage.height / 4.5)) *
+                        (yPos - (s.y + images.sunImage.height / 4.5))
+                    ) <
+                    (images.sunImage.height / 4.5 + 1) &&
+                    !s["isCollected"]
+                )
+                this.uncollectedSunsOver.forEach(s => {
+
+                    this.pointingOnClickable = true
+                    this.stopSunPointer = true
+
+                })
+            }
+            this.stopSunPointer = false
+            this.stopBankPointer = false
+            if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
+            else this.canvas.style = ""
         }
-
-        this.uncollectedSunsOver = this.suns.filter(s =>
-            Math.sqrt(
-                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
-                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
-                (yPos - (s.y + images.sunImage.height / 4.5)) *
-                (yPos - (s.y + images.sunImage.height / 4.5))
-            ) <
-            (images.sunImage.height / 4.5 + 1) &&
-            !s["isCollected"]
-        )
-
-        this.uncollectedSunsOver.forEach(s => {
-
-            this.pointingOnClickable = true
-            this.stopSunPointer = true
-
-        })
-
-        this.stopSunPointer = false
-        this.stopBankPointer = false
-        if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
-        else this.canvas.style = ""
     }
     clickedAt = [null, null]
     onmousedown(e) {
@@ -172,16 +176,25 @@ class Game {
                     (yPos - (s.y + images.sunImage.height / 4.5))) <
                 (images.sunImage.height / 4.5 + 1) && !s["isCollected"])
 
+
+
+            if (this.shovelSelected) {
+                p.removePlant(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
+                this.shovelSelected = false
+                console.log(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
+                return
+            }
             for (let s of this.uncollectedSunsOver.reverse()) {
                 s.isCollected = true
                 s.x -= this.cameraX
                 this.clickedAt = [null, null]
                 return
             }
-
-            if (!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) {
+            if ((!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) && !(xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)) {
                 p.place(this.selPlant)
                 this.selPlant = null
+            } else if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected) {
+                game.shovelSelected = true
             }
         }
         else {
@@ -356,7 +369,7 @@ class Game {
 
                 if (this.sun >= 100 && this.selPlant == 0) this.drawPrev(4, 2, images.PeashooterFrames)
                 else if (this.sun >= 50 && this.selPlant == 1) this.drawPrev(4, 2, images.SunflowerFrames)
-
+                if (this.shovelSelected) ctx.drawImage(images.shovelI, this.xPos - 17, this.yPos - images.shovelI.height + 15)
                 this.sunflowerActions()
                 this.peashooterActions()
                 this.zombieActions()
@@ -407,7 +420,6 @@ class Game {
     }
 
     paused = false
-    bgLoaded = false
     sunflowerloaded = false
     animate() {
 
@@ -435,6 +447,8 @@ class Game {
         const sun = this.sun
         ctx.textRendering = "geometricPrecision"
         ctx.drawImage(images.seedBankI, 10, 0 - this.seedBankY)
+        ctx.drawImage(images.shovelSlotI, 456, 0 - this.seedBankY)
+        if (!this.shovelSelected) ctx.drawImage(images.shovelI, 451, -5 - this.seedBankY)
         ctx.font = "19px Continuum"
         ctx.textAlign = "center"
         ctx.fillText(this.sun, 48, 78 - this.seedBankY)
@@ -442,6 +456,7 @@ class Game {
         ctx.textAlign = "right"
         ctx.font = "12px Pico129"
         const selPlants = this.selPlants
+
         for (let i = 0; i < this.selPlants.length; i++) {
 
             this.packetX = 89 + i * (365 / 6)
@@ -496,7 +511,7 @@ class Game {
             plantArray.filter(p => p.health > 0).forEach(plool => {
                 plool.animFrame += speed * this.dt
                 const particularFrame = Math.round(plool.animFrame) % plantFrames.length
-
+                if (this.shovelSelected && this.GridX.indexOf(this.gridX) + 1 == plool.col && this.GridY.indexOf(this.gridY) + 1 == plool.row) ctx.globalAlpha = 0.75
                 this.ctx.drawImage(
                     plantFrames[particularFrame],
 
@@ -505,6 +520,7 @@ class Game {
                     plws,
                     plhs
                 )
+                ctx.globalAlpha = 1
             })
 
         }
@@ -827,8 +843,9 @@ class Plant {
         }
     }
 }
-
+bgLoaded = false
 class Images {
+
     constructor() {
         this.PeashooterFrames = []
         for (let i = 0; i <= 40; i++) {
@@ -863,13 +880,16 @@ class Images {
         this.background1 = new Image()
         this.background1.src = "Images/background1.jpg"
         this.background1.onload = function () {
-            game.bgLoaded = true
-        }
-        this.SunflowerFrames[55].onload = () => {
-            game.sunflowerloaded = true
+            bgLoaded = true
         }
         this.seedBankI = new Image()
         this.seedBankI.src = "Images/SeedBank.png"
+
+        this.shovelSlotI = new Image()
+        this.shovelSlotI.src = "Images/ShovelBank.png"
+
+        this.shovelI = new Image()
+        this.shovelI.src = "Images/Shovel.png"
 
         this.sunImage = new Image()
         this.sunImage.src = "Images/Sun.png"
@@ -887,9 +907,9 @@ class Images {
 p = new Plant(0, true)
 images = new Images()
 
-waituntilimagesloaded = setInterval( e => {
-    if (game.bgLoaded) {
+waituntilimagesloaded = setInterval(() => {
+    if (bgLoaded) {
         game = new Game()
         clearInterval(waituntilimagesloaded)
     }
-}, 0)
+}, 1)
