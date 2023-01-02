@@ -1,3 +1,13 @@
+canvas = document.getElementById("hahacanvasfunni")
+ctx = document.getElementById("hahacanvasfunni").getContext("2d")
+
+canvas.width = 800
+canvas.height = 600
+ctx.font = "100px BrianneTod, Calibri"
+ctx.textAlign = "center"
+ctx.fillStyle = "white"
+ctx.fillText("LOADING", canvas.width / 2, canvas.height / 2 + 20)
+
 class Game {
     constructor() {
         this.canvas = document.getElementById("hahacanvasfunni")
@@ -876,6 +886,7 @@ class Images {
 
 p = new Plant(0, true)
 images = new Images()
+
 waituntilimagesloaded = setInterval( e => {
     if (game.bgLoaded) {
         game = new Game()
