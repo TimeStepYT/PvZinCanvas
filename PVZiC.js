@@ -193,7 +193,7 @@ class Game {
             if ((!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) && !(xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)) {
                 p.place(this.selPlant)
                 this.selPlant = null
-            } else if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected) {
+            } else if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
                 game.shovelSelected = true
             }
         }
@@ -218,6 +218,7 @@ class Game {
             case 'Escape':
                 this.selPlant = null
                 p.plant = null
+                this.shovelSelected = false
                 break;
             case 'z':
                 this.addZombie()
