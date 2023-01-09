@@ -960,8 +960,7 @@ p = new Plant(0, true)
 images = new Images()
 
 waituntilimagesloaded = setInterval(() => {
-    if (bgLoaded) {
-        game = new Game()
-        clearInterval(waituntilimagesloaded)
-    }
-}, 1)
+    if (!bgLoaded) return
+    game = new Game()
+    clearInterval(waituntilimagesloaded)
+}, 10)

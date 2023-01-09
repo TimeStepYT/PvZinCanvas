@@ -11,7 +11,9 @@ canvas {
     border-radius: 5px;
     -webkit-font-smoothing: none;
     -webkit-tap-highlight-color: transparent;
-    image-rendering: crisp-edges;    
+    image-rendering: optimizeSpeed;
+    height: 600px;
+    width: 800px;
     background-color: black;
 }
 
