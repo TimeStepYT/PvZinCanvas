@@ -88,7 +88,7 @@ class Game {
         return !(this.taken[this.gridX][this.gridY][0])
     }
     pointingOnClickable = false
-    selPlants = [0, 1]
+    selPlants = [{ "plant": 0, "reload": 0 }, { "plant": 1, "reload": 0 }]
     suns = []
     uncollectedSunsOver = []
     stopSunPointer = false;
@@ -110,7 +110,7 @@ class Game {
             this.yPos = yPos
 
             for (let i = 0; i < this.selPlants.length; i++) {
-                const selPlantPlant = this.selPlants[i]
+                const selPlantPlant = this.selPlants[i].plant
 
                 if (!this.stopBankPointer) {
                     this.packetX = 89 + i * (365 / 6)
@@ -158,49 +158,60 @@ class Game {
         }
     }
     clickedAt = [null, null]
+    onRightClick(e) {
+        if (e.button != 2) return
+
+        this.selPlant = null
+        p.plant = null
+    }
+
+    onLeftClick(e) {
+        if (e.button != 0) return
+        const xPos = this.xPos
+        const yPos = this.yPos
+        this.clickedAt = [xPos, yPos]
+
+        this.uncollectedSunsOver = this.suns.filter(s =>
+            Math.sqrt(
+                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
+                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                (yPos - (s.y + images.sunImage.height / 4.5)) *
+                (yPos - (s.y + images.sunImage.height / 4.5))) <
+            (images.sunImage.height / 4.5 + 1) && !s["isCollected"])
+
+
+
+        if (this.shovelSelected) {
+            p.removePlant(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
+            this.shovelSelected = false
+            console.log(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
+            return
+        }
+        for (let s of this.uncollectedSunsOver.reverse()) {
+            s.isCollected = true
+            s.x -= this.cameraX
+            this.clickedAt = [null, null]
+            return
+        }
+        if (
+            (!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) &&
+            !(xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)
+        ) {
+            p.place(this.selPlant)
+            this.selPlant = null
+        } else if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
+            this.shovelSelected = true
+        }
+
+        if (this.pointingOnClickable) this.pointingOnClickable = false
+    }
+
     onmousedown(e) {
         let rect = this.rect
-        let xPos = e.clientX - rect.left
-        let yPos = e.clientY - rect.top
-        this.xPos = xPos
-        this.yPos = yPos
+        this.xPos = e.clientX - rect.left
+        this.yPos = e.clientY - rect.top
 
-        if (e.button == 0) {
-            this.clickedAt = [xPos, yPos]
-
-            this.uncollectedSunsOver = this.suns.filter(s =>
-                Math.sqrt(
-                    (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
-                    (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
-                    (yPos - (s.y + images.sunImage.height / 4.5)) *
-                    (yPos - (s.y + images.sunImage.height / 4.5))) <
-                (images.sunImage.height / 4.5 + 1) && !s["isCollected"])
-
-
-
-            if (this.shovelSelected) {
-                p.removePlant(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
-                this.shovelSelected = false
-                console.log(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
-                return
-            }
-            for (let s of this.uncollectedSunsOver.reverse()) {
-                s.isCollected = true
-                s.x -= this.cameraX
-                this.clickedAt = [null, null]
-                return
-            }
-            if ((!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) && !(xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)) {
-                p.place(this.selPlant)
-                this.selPlant = null
-            } else if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
-                game.shovelSelected = true
-            }
-        }
-        else {
-            this.selPlant = null
-            p.plant = null
-        }
+        this.onLeftClick(e)
     }
 
     cameraX = 0
@@ -466,7 +477,7 @@ class Game {
             this.packetX = 89 + i * (365 / 6)
             const packetX = this.packetX
 
-            if (selPlants[i] == 0) {
+            if (selPlants[i].plant == 0) {
                 if (this.seedBankY == 0) {
                     if (sun >= 100) {
                         if (this.selPlant == 0 && p.plant == 0) ctx.filter = "brightness(33%)"
@@ -478,7 +489,7 @@ class Game {
                 ctx.drawImage(images.PeashooterFrames[6], packetX + 5, 18 - this.seedBankY, images.PeashooterFrames[0].width / 4, images.PeashooterFrames[0].height / 4)
                 this.drawCost(100)
 
-            } else if (selPlants[i] == 1) {
+            } else if (selPlants[i].plant == 1) {
                 if (this.seedBankY == 0) {
                     if (sun >= 50) {
                         if (this.selPlant == 1 && p.plant == 1) ctx.filter = "brightness(33%)"
@@ -495,8 +506,8 @@ class Game {
             let clickedAt = this.clickedAt;
             if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0) {
                 if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
-                    this.selPlant = selPlants[i]
-                    p.plant = selPlants[i]
+                    this.selPlant = selPlants[i].plant
+                    p.plant = selPlants[i].plant
                     this.clickedAt = []
                 }
             } else if (this.seedBankY != 0) {
