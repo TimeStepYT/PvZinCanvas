@@ -93,76 +93,92 @@ class Game {
     uncollectedSunsOver = []
     stopSunPointer = false;
     stopSunPointer = false;
+
     onerror(errorMessage, file, lineNumber, columnNumber, error) {
         document.getElementById("error").innerHTML += `
             ${errorMessage} ${error}<br>
             ${file}:${lineNumber}:${columnNumber}<br>`
     }
-    onmousemove(e) {
-        if (this.startAnimationFinished) {
-            this.pointingOnClickable = false
-            this.rect = this.canvas.getBoundingClientRect()
-            let rect = this.rect
 
-            let xPos = e.clientX - rect.left
-            let yPos = e.clientY - rect.top
-            this.xPos = xPos
-            this.yPos = yPos
+    pointingOnSeedBank() {
+        const xPos = this.xPos
+        const yPos = this.yPos
 
-            for (let i = 0; i < this.selPlants.length; i++) {
-                const selPlantPlant = this.selPlants[i].plant
+        for (let i = 0; i < this.selPlants.length; i++) {
+            if (this.stopBankPointer) break
 
-                if (!this.stopBankPointer) {
-                    this.packetX = 89 + i * (365 / 6)
+            const selPlantPlant = this.selPlants[i].plant
+            this.packetX = 89 + i * (365 / 6)
 
-                    if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
-                    if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
+            if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
+            if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
 
-                    if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
-                        if (xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
-                            this.pointingOnClickable = true
-                            break
-                        } else {
-                            this.pointingOnClickable = false
-                        }
-                    } else {
-                        this.pointingOnClickable = false
-                    }
-                }
-            }
-
-            if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
-
-            if (!this.shovelSelected) {
-                this.uncollectedSunsOver = this.suns.filter(s =>
-                    Math.sqrt(
-                        (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
-                        (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
-                        (yPos - (s.y + images.sunImage.height / 4.5)) *
-                        (yPos - (s.y + images.sunImage.height / 4.5))
-                    ) <
-                    (images.sunImage.height / 4.5 + 1) &&
-                    !s["isCollected"]
-                )
-                this.uncollectedSunsOver.forEach(s => {
-
+            if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
+                if (xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
                     this.pointingOnClickable = true
-                    this.stopSunPointer = true
-
-                })
+                    break
+                }
+            } else {
+                this.pointingOnClickable = false
             }
-            this.stopSunPointer = false
-            this.stopBankPointer = false
-            if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
-            else this.canvas.style = ""
         }
     }
+
+    pointingOnSun() {
+        if (this.shovelSelected) return
+
+        const xPos = this.xPos
+        const yPos = this.yPos
+
+        this.uncollectedSunsOver = this.suns.filter(s =>
+            Math.sqrt(
+                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
+                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                (yPos - (s.y + images.sunImage.height / 4.5)) *
+                (yPos - (s.y + images.sunImage.height / 4.5))
+            ) <
+            (images.sunImage.height / 4.5 + 1) &&
+            !s.isCollected
+        )
+        if (this.uncollectedSunsOver.length > 0) {
+            this.pointingOnClickable = true
+            this.stopSunPointer = true
+        }
+    }
+
+    onmousemove(e) {
+        if (!this.startAnimationFinished) return
+
+
+        this.pointingOnClickable = false
+        this.rect = this.canvas.getBoundingClientRect()
+        let rect = this.rect
+
+        this.xPos = e.clientX - rect.left
+        this.yPos = e.clientY - rect.top
+
+        this.pointingOnSeedBank()
+
+        if (this.xPos >= 456 && this.xPos <= 456 + images.shovelSlotI.width && this.yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
+
+        this.pointingOnSun()
+
+        this.stopSunPointer = false
+        this.stopBankPointer = false
+
+        if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
+        else this.canvas.style = ""
+
+    }
+
     clickedAt = [null, null]
+
     onRightClick(e) {
         if (e.button != 2) return
 
         this.selPlant = null
         p.plant = null
+        this.shovelSelected = false
     }
 
     onLeftClick(e) {
@@ -184,7 +200,6 @@ class Game {
         if (this.shovelSelected) {
             p.removePlant(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
             this.shovelSelected = false
-            console.log(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
             return
         }
         for (let s of this.uncollectedSunsOver.reverse()) {
@@ -212,6 +227,7 @@ class Game {
         this.yPos = e.clientY - rect.top
 
         this.onLeftClick(e)
+        this.onRightClick(e)
     }
 
     cameraX = 0
@@ -371,6 +387,44 @@ class Game {
         )
     }
 
+    startAnimation() {
+        this.startAnimationFrame += this.dt
+
+        if (this.startAnimationFrame >= 0) {
+
+            if (this.startAnimationFrame < 82) {
+                this.cameraX = (this.startAnimationFrame / 4.942565) ** 2
+            }
+
+            else if (this.startAnimationFrame < 120) {
+                this.cameraX = -(((this.startAnimationFrame - 120) / 3.7128) ** 2) + 380
+            }
+
+            else if (this.startAnimationFrame < 260) {
+                this.cameraX = 380
+            }
+
+            else if (this.startAnimationFrame < 298) {
+                this.cameraX = -(((this.startAnimationFrame - 260) / 3.7128) ** 2) + 380
+            }
+            else if (this.startAnimationFrame < 380) {
+                this.cameraX = ((this.startAnimationFrame - 380) / 4.942565) ** 2
+            }
+
+            else {
+                this.startAnimationFinished = true
+                this.cameraX = 0
+                this.zombies = []
+            }
+
+            if (this.startAnimationFrame >= 360 && this.startAnimationFrame < 380) {
+                this.seedBankY = (((this.startAnimationFrame - 370) - 20) / 2.14) ** 2
+            } else if (this.startAnimationFrame >= 380) this.seedBankY = 0
+
+
+        }
+    }
+
     drawAll() {
         if (!this.paused) {
             this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
@@ -395,41 +449,7 @@ class Game {
 
                 this.sunStuff()
             } else {
-                this.startAnimationFrame += this.dt
-
-                if (this.startAnimationFrame >= 0) {
-
-                    if (this.startAnimationFrame < 82) {
-                        this.cameraX = (this.startAnimationFrame / 4.942565) ** 2
-                    }
-
-                    else if (this.startAnimationFrame < 120) {
-                        this.cameraX = -(((this.startAnimationFrame - 120) / 3.7128) ** 2) + 380
-                    }
-
-                    else if (this.startAnimationFrame < 260) {
-                        this.cameraX = 380
-                    }
-
-                    else if (this.startAnimationFrame < 298) {
-                        this.cameraX = -(((this.startAnimationFrame - 260) / 3.7128) ** 2) + 380
-                    }
-                    else if (this.startAnimationFrame < 380) {
-                        this.cameraX = ((this.startAnimationFrame - 380) / 4.942565) ** 2
-                    }
-
-                    else {
-                        this.startAnimationFinished = true
-                        this.cameraX = 0
-                        this.zombies = []
-                    }
-
-                    if (this.startAnimationFrame >= 360 && this.startAnimationFrame < 380) {
-                        this.seedBankY = (((this.startAnimationFrame - 370) - 20) / 2.14) ** 2
-                    } else if (this.startAnimationFrame >= 380) this.seedBankY = 0
-
-
-                }
+                this.startAnimation()
             }
         }
     }
@@ -457,13 +477,30 @@ class Game {
         this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69), 72 - this.seedBankY)
     }
 
+    drawSeedPacket(plant, PlantFrames, cost) {
+        if (this.seedBankY == 0 && this.selPlant == plant) {
+            if (this.sun >= cost) ctx.filter = "brightness(33%)"
+            else this.selPlant = null
+        }
+        if (this.sun < cost || this.seedBankY != 0) ctx.filter = "brightness(67%)"
+
+        ctx.drawImage(images.seedPacket, this.packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
+        ctx.drawImage(PlantFrames[6], this.packetX + 5, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
+        this.drawCost(cost)
+    }
+
     drawSeedBank() {
         let ctx = this.ctx
-        const sun = this.sun
         ctx.textRendering = "geometricPrecision"
+
+        // Draw Seed bank with shovel slot
         ctx.drawImage(images.seedBankI, 10, 0 - this.seedBankY)
         ctx.drawImage(images.shovelSlotI, 456, 0 - this.seedBankY)
+
+        // Draw Shovel
         if (!this.shovelSelected) ctx.drawImage(images.shovelI, 451, -5 - this.seedBankY)
+
+        // Draw Sun Amount
         ctx.font = "19px Continuum"
         ctx.textAlign = "center"
         ctx.fillText(this.sun, 48, 78 - this.seedBankY)
@@ -473,43 +510,21 @@ class Game {
         const selPlants = this.selPlants
 
         for (let i = 0; i < this.selPlants.length; i++) {
-
             this.packetX = 89 + i * (365 / 6)
             const packetX = this.packetX
 
-            if (selPlants[i].plant == 0) {
-                if (this.seedBankY == 0) {
-                    if (sun >= 100) {
-                        if (this.selPlant == 0 && p.plant == 0) ctx.filter = "brightness(33%)"
-                    } else if (this.selPlant == 0) this.selPlant = null
-                }
-                if (sun < 100 || this.seedBankY != 0) ctx.filter = "brightness(67%)"
-
-                ctx.drawImage(images.seedPacket, packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
-                ctx.drawImage(images.PeashooterFrames[6], packetX + 5, 18 - this.seedBankY, images.PeashooterFrames[0].width / 4, images.PeashooterFrames[0].height / 4)
-                this.drawCost(100)
-
-            } else if (selPlants[i].plant == 1) {
-                if (this.seedBankY == 0) {
-                    if (sun >= 50) {
-                        if (this.selPlant == 1 && p.plant == 1) ctx.filter = "brightness(33%)"
-                    } else if (this.selPlant == 1) this.selPlant = null
-                }
-                if (sun < 50 || this.seedBankY != 0) ctx.filter = "brightness(67%)"
-
-                ctx.drawImage(images.seedPacket, packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
-                ctx.drawImage(images.SunflowerFrames[6], packetX + 5, 18 - this.seedBankY, images.SunflowerFrames[0].width / 4, images.SunflowerFrames[0].height / 4)
-                this.drawCost(50)
-            }
+            if (selPlants[i].plant == 0) this.drawSeedPacket(0, images.PeashooterFrames, 100)
+            else if (selPlants[i].plant == 1) this.drawSeedPacket(1, images.SunflowerFrames, 50)
 
             ctx.filter = "brightness(100%)"
             let clickedAt = this.clickedAt;
-            if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0) {
-                if (clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
-                    this.selPlant = selPlants[i].plant
-                    p.plant = selPlants[i].plant
-                    this.clickedAt = []
-                }
+            if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0 &&
+                clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
+
+                this.selPlant = selPlants[i].plant
+                p.plant = selPlants[i].plant
+                this.clickedAt = []
+
             } else if (this.seedBankY != 0) {
                 this.clickedAt = []
             }
@@ -521,28 +536,27 @@ class Game {
         const plfr = plantFrames[0]
         const plws = plfr.width / s
         const plhs = plfr.height / s
-        if (plantArray != []) {
 
-            plantArray.filter(p => p.health > 0).forEach(plool => {
-                plool.animFrame += speed * this.dt
-                const particularFrame = Math.round(plool.animFrame) % plantFrames.length
-                if (this.shovelSelected && this.GridX.indexOf(this.gridX) + 1 == plool.col && this.GridY.indexOf(this.gridY) + 1 == plool.row) ctx.filter = "brightness(175%)"
-                if (plool.hurt) {
-                    this.ctx.filter = "brightness(150%)"
-                    plool.hurt = false
-                }
-                this.ctx.drawImage(
-                    plantFrames[particularFrame],
+        if (plantArray.length == 0) return
 
-                    plool.x - this.cameraX,
-                    plool.y,
-                    plws,
-                    plhs
-                )
-                ctx.filter = "brightness(100%)"
-            })
+        plantArray.filter(p => p.health > 0).forEach(plool => {
+            plool.animFrame += speed * this.dt
+            const particularFrame = Math.round(plool.animFrame) % plantFrames.length
+            if (this.shovelSelected && this.GridX.indexOf(this.gridX) + 1 == plool.col && this.GridY.indexOf(this.gridY) + 1 == plool.row) ctx.filter = "brightness(175%)"
+            if (plool.hurt) {
+                this.ctx.filter = "brightness(150%)"
+                plool.hurt = false
+            }
+            this.ctx.drawImage(
+                plantFrames[particularFrame],
 
-        }
+                plool.x - this.cameraX,
+                plool.y,
+                plws,
+                plhs
+            )
+            ctx.filter = "brightness(100%)"
+        })
     }
 
     drawPrev(x, s, plantFrames) {
@@ -582,6 +596,40 @@ class Game {
     startAnimationFrame = -150
     startAnimationFinished = false
 
+    pushSunflowerSun() {
+        this.sunflowers.filter(s => s.sunSpawnFrame >= this.sunFlowerSunSpawnRate / 2).forEach(s => {
+            const randX = Math.round(Math.random() * 60) - 30
+
+            this.suns.push({
+                "x": s["x"],
+                "y": s["y"] - 50,
+                "fallingSunMaxY": null,
+                "isCollected": false,
+                "fromSky": false,
+                "sunFrame": 0,
+                "sunflowerSunSpawnAnimationFrame": s["y"] - 50,
+                "sunflowerSunTargetX": randX
+            })
+
+            s.sunSpawnFrame = 0
+        })
+    }
+    shootPea(p) {
+        if (p.peaFrame < this.peashooterPeaSpawnRate / 2 || p.animFrame < 39) return
+
+
+        for (let z of this.zombies.filter(z => p.row == z.row && p.x <= z.x)) {
+            this.peas.push({
+                "x": p.x + images.PeashooterFrames[0].width / 2 - images.peaImage.width,
+                "y": p.y + 10,
+                "row": p.row
+            })
+            p.peaFrame = 0
+            break
+        }
+
+    }
+
     pushSun(fromSky) {
         if (fromSky) {
             this.suns.push({
@@ -593,24 +641,7 @@ class Game {
                 "sunFrame": 0
             })
             this.sunFrame = 0
-        } else {
-            this.sunflowers.filter(s => s.sunSpawnFrame >= this.sunFlowerSunSpawnRate / 2).forEach(s => {
-                const randX = Math.round(Math.random() * 60) - 30
-
-                this.suns.push({
-                    "x": s["x"],
-                    "y": s["y"] - 50,
-                    "fallingSunMaxY": null,
-                    "isCollected": false,
-                    "fromSky": false,
-                    "sunFrame": 0,
-                    "sunflowerSunSpawnAnimationFrame": s["y"] - 50,
-                    "sunflowerSunTargetX": randX
-                })
-
-                s.sunSpawnFrame = 0
-            })
-        }
+        } else this.pushSunflowerSun()
     }
 
     sunflowerActions() {
@@ -624,18 +655,7 @@ class Game {
     peashooterActions() {
         this.peashooters.forEach(p => {
             p.peaFrame += 0.28 * this.dt
-            if (p["peaFrame"] >= this.peashooterPeaSpawnRate / 2 && p["animFrame"] >= 39) {
-                for (let z of this.zombies.filter(z => p["row"] == z["row"] && p["x"] <= z["x"])) {
-                    this.peas.push({
-                        "x": p["x"] + images.PeashooterFrames[0].width / 2 - images.peaImage.width,
-                        "y": p["y"] + 10,
-                        "row": p.row
-                    })
-
-                    p["peaFrame"] = 0
-                    break
-                }
-            }
+            this.shootPea(p)
         })
     }
 
@@ -660,6 +680,22 @@ class Game {
         this.zombies.push(zm);
         this.zombies.sort((a, b) => a.row - b.row);
     }
+    zombieEat() {
+        if (z.eatingFrame < this.eatingFrameRate) return
+        z.eatingFrame = 0
+
+        for (const plant of p.filteredPlantsArray(p => p.row == z.row && p.x + images.PeashooterFrames[0].width / 4 > z.x && p.x < z.x)) {
+            for (const pl of plant) {
+                pl.health--
+                pl.hurt = true
+                if (pl.health > 0) continue
+
+                p.removePlant(pl.col, pl.row)
+                break
+            }
+        }
+    }
+
     zombieActions() {
 
         this.zombieFrame += 1 * this.dt
@@ -685,21 +721,8 @@ class Game {
         })
 
         for (const z of this.zombies.filter(z => z.eating)) {
-            if (z.eatingFrame >= this.eatingFrameRate) {
-                z.eatingFrame = 0
-                for (const plant of p.filteredPlantsArray(p => p.row == z.row && p.x + images.PeashooterFrames[0].width / 4 > z.x && p.x < z.x)) {
-                    for (const pl of plant) {
-                        pl.health--
-                        pl.hurt = true
-                        if (pl.health <= 0) {
-                            p.removePlant(pl.col, pl.row)
-                            break
-                        }
-                    }
-                }
-            } else {
-                z.eatingFrame += this.dt
-            }
+            this.zombieEat()
+            if (z.eatingFrame < this.eatingFrameRate) z.eatingFrame += this.dt
         }
     }
 
@@ -798,16 +821,21 @@ class Plant {
         this.placeable = placeable
     }
 
+    setPlantArray(pl, plant) {
+        plant.splice(plant.indexOf(pl), 1);
+    }
+
     removePlant(col, row) {
         for (const plants of this.plantsArray()) {
             for (const pl of plants) {
-                if (pl.col == col && pl.row == row) {
-                    if (game.sunflowers.indexOf(pl) >= 0) game.sunflowers.splice(game.sunflowers.indexOf(pl), 1);
-                    else if (game.peashooters.indexOf(pl) >= 0) game.peashooters.splice(game.peashooters.indexOf(pl), 1);
-                    game.taken[game.GridX[col - 1]][game.GridY[row - 1]] = [false]
-                    for (const zo of game.zombies.filter(z => z.eating && z.row == pl.row && pl.x + images.PeashooterFrames[0].width / 4 > z.x && pl.x < z.x)) {
-                        zo.eating = false
-                    }
+                if (pl.col != col || pl.row != row) continue
+
+                if (game.sunflowers.indexOf(pl) >= 0) this.setPlantArray(pl, game.sunflowers)
+                else if (game.peashooters.indexOf(pl) >= 0) this.setPlantArray(pl, game.peashooters)
+
+                game.taken[game.GridX[col - 1]][game.GridY[row - 1]] = [false]
+                for (const zo of game.zombies.filter(z => z.eating && z.row == pl.row && pl.x + images.PeashooterFrames[0].width / 4 > z.x && pl.x < z.x)) {
+                    zo.eating = false
                 }
             }
         }
@@ -825,27 +853,33 @@ class Plant {
         return plants
     }
 
+    finalPlaceActions(plant, cost) {
+        game.taken[game.gridX][game.gridY] = [true, plant]
+        game.sun -= cost
+    }
+
     place() {
         const gridX = game.gridX
         const gridY = game.gridY
-        if (p.plant == 1 && game.sun >= 50 && game.isFree()) {
-            if (p.placeable == true) {
 
-                game.sunflowers.push({
-                    "x": gridX - images.SunflowerFrames[0].width / 4,
-                    "y": gridY - images.SunflowerFrames[0].height / 2 + 28,
-                    "sunSpawnFrame": 0,
-                    "animFrame": 0,
-                    "sunSpawned": false,
-                    "health": 6,
-                    "row": game.GridY.indexOf(gridY) + 1,
-                    "col": game.GridX.indexOf(gridX) + 1
-                })
+        if (!game.isFree()) return
 
-                game.taken[gridX][gridY] = [true, 1]
-                game.sun -= 50
-            }
-        } else if (p.plant == 0 && game.sun >= 100 && game.isFree() && p.placeable) {
+        if (p.plant == 1 && game.sun >= 50) {
+            if (p.placeable == false) return
+
+            game.sunflowers.push({
+                "x": gridX - images.SunflowerFrames[0].width / 4,
+                "y": gridY - images.SunflowerFrames[0].height / 2 + 28,
+                "sunSpawnFrame": 0,
+                "animFrame": 0,
+                "sunSpawned": false,
+                "health": 6,
+                "row": game.GridY.indexOf(gridY) + 1,
+                "col": game.GridX.indexOf(gridX) + 1
+            })
+
+            this.finalPlaceActions(1, 50)
+        } else if (p.plant == 0 && game.sun >= 100 && p.placeable) {
             game.peashooters.push({
                 "x": gridX - images.PeashooterFrames[0].width / 4,
                 "y": gridY - images.PeashooterFrames[0].height / 2 + 28,
@@ -857,8 +891,7 @@ class Plant {
                 "health": 6
             })
 
-            game.taken[gridX][gridY] = [true, 0]
-            game.sun -= 100
+            this.finalPlaceActions(0, 100)
         }
     }
 }
