@@ -515,7 +515,7 @@ class Game {
             plantArray.filter(p => p.health > 0).forEach(plool => {
                 plool.animFrame += speed * this.dt
                 const particularFrame = Math.round(plool.animFrame) % plantFrames.length
-                if (this.shovelSelected && this.GridX.indexOf(this.gridX) + 1 == plool.col && this.GridY.indexOf(this.gridY) + 1 == plool.row) ctx.globalAlpha = 0.75
+                if (this.shovelSelected && this.GridX.indexOf(this.gridX) + 1 == plool.col && this.GridY.indexOf(this.gridY) + 1 == plool.row) ctx.filter = "brightness(175%)"
                 if (plool.hurt) {
                     this.ctx.filter = "brightness(150%)"
                     plool.hurt = false
@@ -528,7 +528,6 @@ class Game {
                     plws,
                     plhs
                 )
-                ctx.globalAlpha = 1
                 ctx.filter = "brightness(100%)"
             })
 
