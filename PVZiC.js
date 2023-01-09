@@ -113,11 +113,9 @@ class Game {
             if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
             if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
 
-            if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) {
-                if (xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
-                    this.pointingOnClickable = true
-                    break
-                }
+            if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5 && xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2 && selPlantPlant != this.selPlant) {
+                this.pointingOnClickable = true
+                break
             } else {
                 this.pointingOnClickable = false
             }
@@ -193,7 +191,7 @@ class Game {
                 (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
                 (yPos - (s.y + images.sunImage.height / 4.5)) *
                 (yPos - (s.y + images.sunImage.height / 4.5))) <
-            (images.sunImage.height / 4.5 + 1) && !s["isCollected"])
+            (images.sunImage.height / 4.5 + 1) && !s.isCollected)
 
 
 
@@ -218,7 +216,8 @@ class Game {
             this.shovelSelected = true
         }
 
-        if (this.pointingOnClickable) this.pointingOnClickable = false
+        this.pointingOnClickable = false
+        this.canvas.style = ""
     }
 
     onmousedown(e) {
@@ -509,7 +508,7 @@ class Game {
         ctx.font = "12px Pico129"
         const selPlants = this.selPlants
 
-        for (let i = 0; i < this.selPlants.length; i++) {
+        for (let i = 0; i < selPlants.length; i++) {
             this.packetX = 89 + i * (365 / 6)
             const packetX = this.packetX
 
@@ -520,11 +519,17 @@ class Game {
             let clickedAt = this.clickedAt;
             if (clickedAt[0] >= 87 && clickedAt[0] <= 446 && clickedAt[1] <= 78.5 && clickedAt[1] >= 7.5 && this.seedBankY == 0 &&
                 clickedAt[0] >= packetX && clickedAt[0] <= packetX + images.seedPacket.width / 2) {
-
-                this.selPlant = selPlants[i].plant
-                p.plant = selPlants[i].plant
-                this.clickedAt = []
-
+                if (this.selPlant == selPlants[i].plant || p.plant == selPlants[i].plant) {
+                    this.selPlant = null
+                    p.plant = null
+                    this.clickedAt = []
+                    break
+                } else {
+                    console.log("fart")
+                    this.selPlant = selPlants[i].plant
+                    p.plant = selPlants[i].plant
+                    this.clickedAt = []
+                }
             } else if (this.seedBankY != 0) {
                 this.clickedAt = []
             }
