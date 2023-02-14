@@ -542,9 +542,9 @@ class Game {
 
     drawCost(cost) {
         if (!this.loseAnimationPlaying) {
-            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69) - this.cameraX * 1.125, 72 - this.seedBankY)
+            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69 - this.cameraX * 1.125), 72 - this.seedBankY)
         } else {
-            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69) - this.cameraX * 1.125, 72 - this.seedBankY)
+            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69 - this.cameraX * 1.125), 72 - this.seedBankY)
         }
     }
 
@@ -555,13 +555,9 @@ class Game {
         }
         if (this.sun < cost || this.seedBankY != 0) ctx.filter = "brightness(67%)"
 
-        if (!this.loseAnimationPlaying) {
-            ctx.drawImage(images.seedPacket, this.packetX - this.cameraX * 1.125, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
-            ctx.drawImage(PlantFrames[6], this.packetX + 5 - this.cameraX * 1.125, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
-        } else {
-            ctx.drawImage(images.seedPacket, this.packetX - this.cameraX * 1.125, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
-            ctx.drawImage(PlantFrames[6], this.packetX + 5 - this.cameraX * 1.125, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
-        }
+        ctx.drawImage(images.seedPacket, Math.round(this.packetX - this.cameraX * 1.125), 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
+        ctx.drawImage(PlantFrames[6], Math.round(this.packetX + 5 - this.cameraX * 1.125), 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
+
         ctx.filter = "brightness(100%)"
         this.drawCost(cost)
     }
