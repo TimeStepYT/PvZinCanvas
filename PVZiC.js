@@ -32,6 +32,7 @@ class Game {
         this.makeTakenDict()
         this.createPrevVars()
         this.addRandZombies()
+
         requestAnimationFrame(() => this.animate())
     }
     shovelSelected = false
@@ -484,57 +485,61 @@ class Game {
     }
 
     drawAll() {
-        if (!this.paused) {
-            this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
+        if (this.paused) return;
 
-            this.drawSeedBank()
-            if (!this.startAnimationFinished) this.drawZombie(this.zombies, images.ZombieIdleFrames, 1, 0.301)
+        this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
 
-            if (this.startAnimationFinished) {
-                this.drawPlant(this.sunflowers, images.SunflowerFrames, 2, 0.301)
-                this.drawPlant(this.peashooters, images.PeashooterFrames, 2, 0.28)
+        this.drawSeedBank()
+        if (!this.startAnimationFinished) this.drawZombie(this.zombies, images.ZombieIdleFrames, 1, 0.301)
 
-                if (!this.loseAnimationPlaying) {
-                    if (this.sun >= 100 && this.selPlant == 0) this.drawPrev(4, 2, images.PeashooterFrames)
-                    else if (this.sun >= 50 && this.selPlant == 1) this.drawPrev(4, 2, images.SunflowerFrames)
-                    if (this.shovelSelected) ctx.drawImage(images.shovelI, this.xPos - 17, this.yPos - images.shovelI.height + 15)
-                    this.sunflowerActions()
-                    this.peashooterActions()
-                    this.zombieActions()
-                } else {
-                    for (let i = 0; i < 2; i++) this.zombieWinning(this.zombieVictor, 1, 1)
-                }
+        if (this.startAnimationFinished) {
+            this.drawPlant(this.sunflowers, images.SunflowerFrames, 2, 0.301)
+            this.drawPlant(this.peashooters, images.PeashooterFrames, 2, 0.28)
 
-                this.drawZombie(this.zombies, images.ZombieWalk1Frames, 1, 0.2)
-
-                this.drawPea(this.peas, 1)
-
-                this.sunStuff()
-
-                if (this.loseAnimationPlaying) {
-                    this.loseAnimation()
-                }
+            if (!this.loseAnimationPlaying) {
+                if (this.sun >= 100 && this.selPlant == 0) this.drawPrev(4, 2, images.PeashooterFrames)
+                else if (this.sun >= 50 && this.selPlant == 1) this.drawPrev(4, 2, images.SunflowerFrames)
+                if (this.shovelSelected) ctx.drawImage(images.shovelI, this.xPos - 17, this.yPos - images.shovelI.height + 15)
+                this.sunflowerActions()
+                this.peashooterActions()
+                this.zombieActions()
             } else {
-                this.startAnimation()
+                for (let i = 0; i < 2; i++) this.zombieWinning(this.zombieVictor, 1, 1)
             }
+
+            this.drawZombie(this.zombies, images.ZombieWalk1Frames, 1, 0.2)
+
+            this.drawPea(this.peas, 1)
+
+            this.sunStuff()
+            this.drawSun()
+            if (this.loseAnimationPlaying) {
+                this.loseAnimation()
+            }
+        } else {
+            this.startAnimation()
         }
     }
 
-    paused = false
     sunflowerloaded = false
     animate() {
 
         if (this.activeWindow) {
-            this.paused = false
-            this.calcDeltaTime()
-
+            if (this.paused) {
+                this.paused = false
+                this.lastUpdate = performance.now()
+                this.dt = 0
+            }
+            else this.calcDeltaTime()
             this.getNearestGridElement()
 
             this.drawAll()
 
         } else {
-            this.paused = true
+            //if (!this.paused) error.innerHTML += "paused\n"
+            if (!this.paused) this.paused = true
             this.lastUpdate = performance.now()
+            this.dt = 0
         }
         requestAnimationFrame(() => this.animate())
     }
@@ -847,12 +852,20 @@ class Game {
             }
         }
     }
-
     sunRate = 2500
-
-    drawSun() {
+    scale = 1 / 2
+    drawSun(collected = false) {
+        const ctx = this.ctx
+        const img = images.sunImage
+        const scale = this.scale
         this.suns.forEach(s => {
-            ctx.drawImage(images.sunImage, s.x - this.cameraX, s.y, images.sunImage.width / 2, images.sunImage.height / 2)
+            if (collected) {
+                ctx.drawImage(img, s.x, s.y, img.width * scale, img.height * scale)
+            } else {
+                ctx.drawImage(img, s.x - this.cameraX, s.y, img.width * scale, img.height * scale)
+            }
+
+            ctx.restore();
         })
     }
 
@@ -885,7 +898,7 @@ class Game {
                 s.y = s["sunflowerSunSpawnAnimationFrame"] + (Math.pow(s.sunFrame - 27.4, 2) / 25) + 30
                 s.x += (s["sunflowerSunTargetX"] / 55) * 0.5 * dt
             }
-            ctx.drawImage(images.sunImage, s.x - this.cameraX, s.y, images.sunImage.width / 2, images.sunImage.height / 2)
+            this.drawSun()
             ctx.globalAlpha = 1
         })
 
@@ -901,7 +914,7 @@ class Game {
                 // this.running = false
                 break
             }
-            ctx.drawImage(images.sunImage, s.x, s.y, images.sunImage.width / 2, images.sunImage.height / 2)
+            this.drawSun(true)
         }
     }
 }
