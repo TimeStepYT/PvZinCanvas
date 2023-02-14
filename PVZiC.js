@@ -887,7 +887,7 @@ class Game {
 
 
         notCollectedSuns.forEach((s, v) => {
-            s.y = s.y < s["fallingSunMaxY"] && s.fromSky ? s.y + 0.5 * dt : s.y
+            s.y = s.y < s.fallingSunMaxY && s.fromSky ? s.y + 0.5 * dt : s.y
             s.sunFrame += dt * 0.5
             if (s.sunFrame >= 800) {
                 ctx.globalAlpha = (((s.sunFrame - 800) / 10) - 1) * -1
@@ -896,8 +896,8 @@ class Game {
                 }
             }
             if (s.sunFrame <= 55 && !s.fromSky) {
-                s.y = s["sunflowerSunSpawnAnimationFrame"] + (Math.pow(s.sunFrame - 27.4, 2) / 25) + 30
-                s.x += (s["sunflowerSunTargetX"] / 55) * 0.5 * dt
+                s.y = s.sunflowerSunSpawnAnimationFrame + (Math.pow(s.sunFrame - 27.4, 2) / 25) + 30
+                s.x += (s.sunflowerSunTargetX / 55) * 0.5 * dt
             }
             this.drawSun()
             ctx.globalAlpha = 1
