@@ -114,7 +114,7 @@ class Game {
             if ((selPlantPlant == 0 && this.sun < 100) || this.seedBankY != 0) continue
             if ((selPlantPlant == 1 && this.sun < 50) || this.seedBankY != 0) continue
 
-            if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5 && xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2 && selPlantPlant != this.selPlant) {
+            if (xPos >= 87 - this.cameraX * 1.125 && xPos <= 446 - this.cameraX * 1.125 && yPos <= 78.5 && yPos >= 7.5 && xPos >= this.packetX - this.cameraX * 1.125 && xPos <= this.packetX + images.seedPacket.width / 2 - this.cameraX * 1.125 && selPlantPlant != this.selPlant) {
                 this.pointingOnClickable = true
                 break
             } else {
@@ -131,8 +131,8 @@ class Game {
 
         this.uncollectedSunsOver = this.suns.filter(s =>
             Math.sqrt(
-                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
-                (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) *
+                (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) +
                 (yPos - (s.y + images.sunImage.height / 4.5)) *
                 (yPos - (s.y + images.sunImage.height / 4.5))
             ) <
@@ -159,7 +159,7 @@ class Game {
 
         this.pointingOnSeedBank()
 
-        if (this.xPos >= 456 && this.xPos <= 456 + images.shovelSlotI.width && this.yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
+        if (this.xPos >= 456 - this.cameraX * 1.125 && this.xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && this.yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
 
         this.pointingOnSun()
 
@@ -190,8 +190,8 @@ class Game {
 
             this.uncollectedSunsOver = this.suns.filter(s =>
                 Math.sqrt(
-                    (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) *
-                    (xPos - (s.x - this.cameraX + images.sunImage.width / 4.5)) +
+                    (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) *
+                    (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) +
                     (yPos - (s.y + images.sunImage.height / 4.5)) *
                     (yPos - (s.y + images.sunImage.height / 4.5))) <
                 (images.sunImage.height / 4.5 + 1) && !s.isCollected)
@@ -205,17 +205,17 @@ class Game {
             }
             for (let s of this.uncollectedSunsOver.reverse()) {
                 s.isCollected = true
-                s.x -= this.cameraX
+                s.x -= this.cameraX * 1.5
                 this.clickedAt = [null, null]
                 return
             }
             if (
-                (!(xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) &&
-                !(xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)
+                (!(xPos >= 87 - this.cameraX * 1.125 && xPos <= 446 - this.cameraX * 1.125 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) &&
+                !(xPos >= 456 - this.cameraX * 1.125 && xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)
             ) {
                 p.place(this.selPlant)
                 this.selPlant = null
-            } else if (xPos >= 456 && xPos <= 456 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
+            } else if (xPos >= 456 - this.cameraX * 1.125 && xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
                 this.shovelSelected = true
             }
 
@@ -223,7 +223,7 @@ class Game {
             for (let i = 0; i < selPlants.length; i++) {
                 this.packetX = 89 + i * (365 / 6)
                 ctx.filter = "brightness(100%)"
-                if (xPos < 87 || xPos > 446 || yPos > 78.5 || yPos < 7.5 || this.seedBankY != 0 || xPos < this.packetX || xPos > this.packetX + images.seedPacket.width / 2) continue
+                if (xPos < 87 - this.cameraX * 1.125 || xPos > 446 - this.cameraX * 1.125 || yPos > 78.5 || yPos < 7.5 || this.seedBankY != 0 || xPos < this.packetX - this.cameraX * 1.125 || xPos > this.packetX - this.cameraX * 1.125 + images.seedPacket.width / 2) continue
                 if (this.selPlant == selPlants[i].plant && p.plant == selPlants[i].plant) {
                     this.selPlant = null
                     p.plant = null
@@ -542,7 +542,7 @@ class Game {
 
     drawCost(cost) {
         if (!this.loseAnimationPlaying) {
-            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69), 72 - this.seedBankY)
+            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69) - this.cameraX * 1.125, 72 - this.seedBankY)
         } else {
             this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69) - this.cameraX * 1.125, 72 - this.seedBankY)
         }
@@ -556,8 +556,8 @@ class Game {
         if (this.sun < cost || this.seedBankY != 0) ctx.filter = "brightness(67%)"
 
         if (!this.loseAnimationPlaying) {
-            ctx.drawImage(images.seedPacket, this.packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
-            ctx.drawImage(PlantFrames[6], this.packetX + 5, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
+            ctx.drawImage(images.seedPacket, this.packetX - this.cameraX * 1.125, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
+            ctx.drawImage(PlantFrames[6], this.packetX + 5 - this.cameraX * 1.125, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
         } else {
             ctx.drawImage(images.seedPacket, this.packetX - this.cameraX * 1.125, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
             ctx.drawImage(PlantFrames[6], this.packetX + 5 - this.cameraX * 1.125, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
@@ -572,12 +572,12 @@ class Game {
 
         // Draw Seed bank with shovel slot
         if (!this.loseAnimationPlaying) {
-            ctx.drawImage(images.seedBankI, 10, 0 - this.seedBankY)
-            ctx.drawImage(images.shovelSlotI, 456, 0 - this.seedBankY)
-            if (!this.shovelSelected) ctx.drawImage(images.shovelI, 451, -5 - this.seedBankY)
+            ctx.drawImage(images.seedBankI, 10 - this.cameraX * 1.125, 0 - this.seedBankY)
+            ctx.drawImage(images.shovelSlotI, 456 - this.cameraX * 1.125, 0 - this.seedBankY)
+            if (!this.shovelSelected) ctx.drawImage(images.shovelI, 451 - this.cameraX * 1.125, -5 - this.seedBankY)
             ctx.font = "19px Continuum"
             ctx.textAlign = "center"
-            ctx.fillText(this.sun, 48, 78 - this.seedBankY)
+            ctx.fillText(this.sun, 48 - this.cameraX * 1.125, 78 - this.seedBankY)
         } else {
             ctx.drawImage(images.seedBankI, 10 - this.cameraX * 1.125, 0 - this.seedBankY)
             ctx.drawImage(images.shovelSlotI, 456 - this.cameraX * 1.125, 0 - this.seedBankY)
