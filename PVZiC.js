@@ -485,6 +485,7 @@ class Game {
     }
 
     drawAll() {
+        
         if (this.paused) return;
 
         this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
