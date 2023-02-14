@@ -146,29 +146,30 @@ class Game {
     }
 
     onmousemove(e) {
-        if (!this.startAnimationFinished) return
+        if (!this.startAnimationFinished || this.loseAnimationPlaying) return
 
-        if (!this.loseAnimationPlaying) {
-            this.pointingOnClickable = false
-            this.rect = this.canvas.getBoundingClientRect()
-            let rect = this.rect
+        this.getNearestGridElement()
 
-            this.xPos = e.clientX - rect.left
-            this.yPos = e.clientY - rect.top
+        this.pointingOnClickable = false
+        this.rect = this.canvas.getBoundingClientRect()
+        let rect = this.rect
 
-            this.pointingOnSeedBank()
+        this.xPos = e.clientX - rect.left
+        this.yPos = e.clientY - rect.top
 
-            if (this.xPos >= 456 && this.xPos <= 456 + images.shovelSlotI.width && this.yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
+        this.pointingOnSeedBank()
 
-            this.pointingOnSun()
+        if (this.xPos >= 456 && this.xPos <= 456 + images.shovelSlotI.width && this.yPos <= images.shovelSlotI.height && !this.shovelSelected) this.pointingOnClickable = true
 
-            this.stopSunPointer = false
-            this.stopBankPointer = false
+        this.pointingOnSun()
 
-            if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
-            else this.canvas.style = ""
-        }
+        this.stopSunPointer = false
+        this.stopBankPointer = false
+
+        if (this.pointingOnClickable) this.canvas.style = "cursor: pointer;"
+        else this.canvas.style = ""
     }
+
 
     clickedAt = [null, null]
 
@@ -222,17 +223,14 @@ class Game {
             for (let i = 0; i < selPlants.length; i++) {
                 this.packetX = 89 + i * (365 / 6)
                 ctx.filter = "brightness(100%)"
-                if (xPos >= 87 && xPos <= 446 && yPos <= 78.5 && yPos >= 7.5 && this.seedBankY == 0 && xPos >= this.packetX && xPos <= this.packetX + images.seedPacket.width / 2) {
-                    if (this.selPlant == selPlants[i].plant && p.plant == selPlants[i].plant) {
-                        this.selPlant = null
-                        p.plant = null
-                        console.log("packetx: " + this.packetX)
-                        break
-                    } else {
-                        this.selPlant = selPlants[i].plant
-                        p.plant = selPlants[i].plant
-                        console.log("packetx: " + this.packetX)
-                    }
+                if (xPos < 87 || xPos > 446 || yPos > 78.5 || yPos < 7.5 || this.seedBankY != 0 || xPos < this.packetX || xPos > this.packetX + images.seedPacket.width / 2) continue
+                if (this.selPlant == selPlants[i].plant && p.plant == selPlants[i].plant) {
+                    this.selPlant = null
+                    p.plant = null
+                    break
+                } else {
+                    this.selPlant = selPlants[i].plant
+                    p.plant = selPlants[i].plant
                 }
             }
 
@@ -315,12 +313,10 @@ class Game {
 
     activeWindow = true
     onfocus() {
-
         this.activeWindow = true
     }
 
     onblur() {
-
         this.activeWindow = false
     }
 
@@ -414,14 +410,15 @@ class Game {
 
     loseAnimation() {
         this.loseAnimationFrame += this.dt
-        if (this.loseAnimationFrame >= 0) {
-            if (this.loseAnimationFrame < 48.576) {
-                this.cameraX = -(((this.loseAnimationFrame) / 5.426) ** 2)
-            }
-            else if (this.loseAnimationFrame < 120) {
-                this.cameraX = (((this.loseAnimationFrame - 120) / 6) ** 2) - 220
-            }
+        if (this.loseAnimationFrame < 0) return
+
+        if (this.loseAnimationFrame < 48.576) {
+            this.cameraX = -(((this.loseAnimationFrame) / 5.426) ** 2)
         }
+        else if (this.loseAnimationFrame < 120) {
+            this.cameraX = (((this.loseAnimationFrame - 120) / 6) ** 2) - 220
+        }
+        this.drawSun()
     }
 
     startAnimation() {
@@ -485,7 +482,6 @@ class Game {
     }
 
     drawAll() {
-        
         if (this.paused) return;
 
         this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
@@ -504,7 +500,7 @@ class Game {
                 this.sunflowerActions()
                 this.peashooterActions()
                 this.zombieActions()
-            } else {
+            } else if (this.zombieVictor !== null) {
                 for (let i = 0; i < 2; i++) this.zombieWinning(this.zombieVictor, 1, 1)
             }
 
@@ -512,19 +508,17 @@ class Game {
 
             this.drawPea(this.peas, 1)
 
-            this.sunStuff()
-            this.drawSun()
-            if (this.loseAnimationPlaying) {
-                this.loseAnimation()
-            }
+            if (!this.loseAnimationPlaying) this.sunStuff()
+            else this.loseAnimation()
+
         } else {
             this.startAnimation()
         }
     }
 
     sunflowerloaded = false
-    animate() {
 
+    animate() {
         if (this.activeWindow) {
             if (this.paused) {
                 this.paused = false
@@ -532,7 +526,6 @@ class Game {
                 this.dt = 0
             }
             else this.calcDeltaTime()
-            this.getNearestGridElement()
 
             this.drawAll()
 
@@ -544,12 +537,14 @@ class Game {
         }
         requestAnimationFrame(() => this.animate())
     }
+
     packetX = undefined
+
     drawCost(cost) {
         if (!this.loseAnimationPlaying) {
             this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69), 72 - this.seedBankY)
         } else {
-            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69) - this.cameraX, 72 - this.seedBankY)
+            this.ctx.fillText(cost, Math.round(this.packetX + images.seedPacket.width - 69) - this.cameraX * 1.125, 72 - this.seedBankY)
         }
     }
 
@@ -564,8 +559,8 @@ class Game {
             ctx.drawImage(images.seedPacket, this.packetX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
             ctx.drawImage(PlantFrames[6], this.packetX + 5, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
         } else {
-            ctx.drawImage(images.seedPacket, this.packetX - this.cameraX, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
-            ctx.drawImage(PlantFrames[6], this.packetX + 5 - this.cameraX, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
+            ctx.drawImage(images.seedPacket, this.packetX - this.cameraX * 1.125, 8 - this.seedBankY, images.seedPacket.width / 2, images.seedPacket.height / 2)
+            ctx.drawImage(PlantFrames[6], this.packetX + 5 - this.cameraX * 1.125, 18 - this.seedBankY, PlantFrames[0].width / 4, PlantFrames[0].height / 4)
         }
         ctx.filter = "brightness(100%)"
         this.drawCost(cost)
@@ -584,12 +579,12 @@ class Game {
             ctx.textAlign = "center"
             ctx.fillText(this.sun, 48, 78 - this.seedBankY)
         } else {
-            ctx.drawImage(images.seedBankI, 10 - this.cameraX, 0 - this.seedBankY)
-            ctx.drawImage(images.shovelSlotI, 456 - this.cameraX, 0 - this.seedBankY)
-            if (!this.shovelSelected) ctx.drawImage(images.shovelI, 451 - this.cameraX, -5 - this.seedBankY)
+            ctx.drawImage(images.seedBankI, 10 - this.cameraX * 1.125, 0 - this.seedBankY)
+            ctx.drawImage(images.shovelSlotI, 456 - this.cameraX * 1.125, 0 - this.seedBankY)
+            if (!this.shovelSelected) ctx.drawImage(images.shovelI, 451 - this.cameraX * 1.125, -5 - this.seedBankY)
             ctx.font = "19px Continuum"
             ctx.textAlign = "center"
-            ctx.fillText(this.sun, 48 - this.cameraX, 78 - this.seedBankY)
+            ctx.fillText(this.sun, 48 - this.cameraX * 1.125, 78 - this.seedBankY)
         }
 
         ctx.textAlign = "right"
@@ -674,13 +669,13 @@ class Game {
             const randX = Math.round(Math.random() * 60) - 30
 
             this.suns.push({
-                "x": s["x"],
-                "y": s["y"] - 50,
+                "x": s.x,
+                "y": s.y - 50,
                 "fallingSunMaxY": null,
                 "isCollected": false,
                 "fromSky": false,
                 "sunFrame": 0,
-                "sunflowerSunSpawnAnimationFrame": s["y"] - 50,
+                "sunflowerSunSpawnAnimationFrame": s.y - 50,
                 "sunflowerSunTargetX": randX
             })
 
@@ -855,38 +850,33 @@ class Game {
     }
     sunRate = 2500
     scale = 1 / 2
-    drawSun(collected = false) {
+    drawSun() {
         const ctx = this.ctx
-        const img = images.sunImage
+        const sunImg = images.sunImage
         const scale = this.scale
-        this.suns.forEach(s => {
-            if (collected) {
-                ctx.drawImage(img, s.x, s.y, img.width * scale, img.height * scale)
-            } else {
-                ctx.drawImage(img, s.x - this.cameraX, s.y, img.width * scale, img.height * scale)
-            }
 
-            ctx.restore();
+        this.suns.forEach(s => {
+            ctx.drawImage(sunImg, s.x - this.cameraX * 1.5, s.y, sunImg.width * scale, sunImg.height * scale)
         })
     }
+
+    notCollectedSuns = []
+    collectedSuns = []
 
     sunStuff() {
         const dt = this.dt
         const ctx = this.ctx
-        if (this.loseAnimationPlaying) {
-            this.drawSun()
-            return
-        }
+
         this.sunFrame += dt % this.sunRate + 1
         if (this.sunFrame >= this.sunRate) {
             this.pushSun(true)
         }
 
-        const notCollectedSuns = this.suns.filter(s => !s.isCollected)
-        const collectedSuns = this.suns.filter(s => s.isCollected)
+        this.notCollectedSuns = this.suns.filter(s => !s.isCollected)
+        this.collectedSuns = this.suns.filter(s => s.isCollected)
 
 
-        notCollectedSuns.forEach((s, v) => {
+        this.notCollectedSuns.forEach((s, v) => {
             s.y = s.y < s.fallingSunMaxY && s.fromSky ? s.y + 0.5 * dt : s.y
             s.sunFrame += dt * 0.5
             if (s.sunFrame >= 800) {
@@ -899,11 +889,10 @@ class Game {
                 s.y = s.sunflowerSunSpawnAnimationFrame + (Math.pow(s.sunFrame - 27.4, 2) / 25) + 30
                 s.x += (s.sunflowerSunTargetX / 55) * 0.5 * dt
             }
-            this.drawSun()
             ctx.globalAlpha = 1
         })
 
-        for (let s of collectedSuns) {
+        for (let s of this.collectedSuns) {
             this.suns.sort((a, b) => a.isCollected - b.isCollected);
             const v = this.suns.indexOf(s)
             const sunAngle = Math.atan2(-s.y, -s.x)
@@ -915,8 +904,8 @@ class Game {
                 // this.running = false
                 break
             }
-            this.drawSun(true)
         }
+        this.drawSun()
     }
 }
 
