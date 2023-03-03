@@ -57,13 +57,14 @@ class Game {
             const animFrame = variation === 0 ? Math.round(Math.random() * 28) : Math.round(Math.random() * 58)
 
             this.zombies.push({
-                x: Math.round(Math.random() * 100 + 890),
-                y: Math.round(Math.random() * 446 + 15.5),
-                animFrame,
-                animVariation: variation,
+                "x": Math.round(Math.random() * 100 + 890),
+                "y": Math.round(Math.random() * 446 + 15.5),
+                "animFrame": animFrame,
+                "animVariation": variation,
+                "type": Math.random() <= 0.55 ? "zombie" : "conehead"
             })
         }
-        this.zombies.sort((a, b) => a.y - b.y + b.x - a.x);
+        this.zombies.sort((a, b) => (a.y !== b.y) ? a.y - b.y : a.x - b.x);
     }
     eatingFrameRate = 50
     taken = {}
@@ -182,69 +183,64 @@ class Game {
     }
 
     onLeftClick(e) {
-        if (e.button != 0) return
-        if (!this.loseAnimationPlaying) {
-            const xPos = this.xPos
-            const yPos = this.yPos
-            this.clickedAt = [xPos, yPos]
+        if (e.button != 0 || this.loseAnimationPlaying) return
 
-            this.uncollectedSunsOver = this.suns.filter(s =>
-                Math.sqrt(
-                    (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) *
-                    (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) +
-                    (yPos - (s.y + images.sunImage.height / 4.5)) *
-                    (yPos - (s.y + images.sunImage.height / 4.5))) <
-                (images.sunImage.height / 4.5 + 1) && !s.isCollected)
+        const xPos = this.xPos
+        const yPos = this.yPos
+        this.clickedAt = [xPos, yPos]
 
+        this.uncollectedSunsOver = this.suns.filter(s =>
+            Math.sqrt(
+                (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) *
+                (xPos - (s.x - this.cameraX * 1.5 + images.sunImage.width / 4.5)) +
+                (yPos - (s.y + images.sunImage.height / 4.5)) *
+                (yPos - (s.y + images.sunImage.height / 4.5))) <
+            (images.sunImage.height / 4.5 + 1) && !s.isCollected)
 
-
-            if (this.shovelSelected) {
-                p.removePlant(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
-                this.shovelSelected = false
-                return
-            }
-            for (let s of this.uncollectedSunsOver.reverse()) {
-                s.isCollected = true
-                s.x -= this.cameraX * 1.5
-                this.clickedAt = [null, null]
-                return
-            }
-            if (
-                (!(xPos >= 87 - this.cameraX * 1.125 && xPos <= 446 - this.cameraX * 1.125 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) &&
-                !(xPos >= 456 - this.cameraX * 1.125 && xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)
-            ) {
-                p.place(this.selPlant)
-                this.selPlant = null
-            } else if (xPos >= 456 - this.cameraX * 1.125 && xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
-                this.shovelSelected = true
-            }
-
-            const selPlants = this.selPlants
-            for (let i = 0; i < selPlants.length; i++) {
-                this.packetX = 89 + i * (365 / 6)
-                ctx.filter = "brightness(100%)"
-                if (xPos < 87 - this.cameraX * 1.125 || xPos > 446 - this.cameraX * 1.125 || yPos > 78.5 || yPos < 7.5 || this.seedBankY != 0 || xPos < this.packetX - this.cameraX * 1.125 || xPos > this.packetX - this.cameraX * 1.125 + images.seedPacket.width / 2) continue
-                if (this.selPlant == selPlants[i].plant && p.plant == selPlants[i].plant) {
-                    this.selPlant = null
-                    p.plant = null
-                    break
-                } else {
-                    this.selPlant = selPlants[i].plant
-                    p.plant = selPlants[i].plant
-                }
-            }
-
-
-            this.pointingOnClickable = false
-            this.canvas.style = ""
+        if (this.shovelSelected) {
+            p.removePlant(this.GridX.indexOf(this.gridX) + 1, this.GridY.indexOf(this.gridY) + 1)
+            this.shovelSelected = false
+            return
         }
+        for (let s of this.uncollectedSunsOver.reverse()) {
+            s.isCollected = true
+            s.x -= this.cameraX * 1.5
+            this.clickedAt = [null, null]
+            this.pointingOnSun()
+            return
+        }
+        if (
+            (!(xPos >= 87 - this.cameraX * 1.125 && xPos <= 446 - this.cameraX * 1.125 && yPos <= 78.5 && yPos >= 7.5) && this.selPlant != null) &&
+            !(xPos >= 456 - this.cameraX * 1.125 && xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height)
+        ) {
+            p.place(this.selPlant)
+            this.selPlant = null
+        } else if (xPos >= 456 - this.cameraX * 1.125 && xPos <= 456 - this.cameraX * 1.125 + images.shovelSlotI.width && yPos <= images.shovelSlotI.height && !this.shovelSelected && this.selPlant == null) {
+            this.shovelSelected = true
+        }
+
+        const selPlants = this.selPlants
+        for (let i = 0; i < selPlants.length; i++) {
+            this.packetX = 89 + i * (365 / 6)
+            ctx.filter = "brightness(100%)"
+            if (xPos < 87 - this.cameraX * 1.125 || xPos > 446 - this.cameraX * 1.125 || yPos > 78.5 || yPos < 7.5 || this.seedBankY != 0 || xPos < this.packetX - this.cameraX * 1.125 || xPos > this.packetX - this.cameraX * 1.125 + images.seedPacket.width / 2) continue
+            if (this.selPlant == selPlants[i].plant && p.plant == selPlants[i].plant) {
+                this.selPlant = null
+                p.plant = null
+                break
+            } else {
+                this.selPlant = selPlants[i].plant
+                p.plant = selPlants[i].plant
+            }
+        }
+
+
+        this.pointingOnClickable = false
+        this.canvas.style = ""
+
     }
 
     onmousedown(e) {
-        let rect = this.rect
-        this.xPos = e.clientX - rect.left
-        this.yPos = e.clientY - rect.top
-
         this.onLeftClick(e)
         this.onRightClick(e)
     }
@@ -267,7 +263,7 @@ class Game {
                 this.shovelSelected = false
                 break;
             case 'z':
-                this.addZombie()
+                if (this.zombies.length <= 20) this.addZombie()
                 break;
             case 'a':
                 this.cameraX -= 5 * this.dt
@@ -331,36 +327,62 @@ class Game {
         );
     }
 
-    drawZombie(zombieArray, zombieFrames, s, speed) {
+    drawZombie(zombieArray, zombieFrames, s) {
         if (zombieArray.length === 0) return
 
         zombieArray.forEach(zarr => {
-            let particularFrame
             if (!this.loseAnimationPlaying) {
-                zarr.animFrame += this.dt * speed;
+                switch (zarr.type) {
+                    case "zombie":
+                        zarr.animFrame += this.dt * 0.301
+                        break
+                    case "conehead":
+                        zarr.animFrame += this.dt * 0.6
+                        break
+                }
                 if (zarr.hit) {
                     this.ctx.filter = "brightness(150%)"
                     zarr.hit = false
                 }
             }
 
-            if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdleFrames.length
-            else if (zarr.animVariation == 1 || zarr.eating) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdle2Frames.length
-            else particularFrame = Math.round(zarr.animFrame) % zombieFrames.length
+            let particularFrame
+            switch (zarr.type) {
+                case "zombie":
+                    if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdleFrames.length
+                    else if (zarr.animVariation == 1 || zarr.eating) particularFrame = Math.round(zarr.animFrame) % images.ZombieIdle2Frames.length
+                    else particularFrame = Math.round(zarr.animFrame) % zombieFrames.length
+
+                    if (zarr.animVariation == 0) {
+                        for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdleFrames, s, particularFrame)
+                    }
+                    else if (zarr.animVariation == 1 || zarr.eating) {
+                        for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdle2Frames, s, particularFrame)
+                    }
+                    else if (zarr != this.zombieVictor) {
+                        for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
+                    }
+                    break
+                case "conehead":
+                    if (zarr.animVariation == 0) particularFrame = Math.round(zarr.animFrame) % images.ConeHeadIdle1Frames.length
+                    else if (zarr.animVariation == 1 || zarr.eating) particularFrame = Math.round(zarr.animFrame) % images.ConeHeadIdle1Frames.length
+                    else particularFrame = Math.round(zarr.animFrame) % images.ConeHeadIdle1Frames.length
+
+                    if (zarr.animVariation == 0) {
+                        this.drawZombieFrame(zarr, images.ConeHeadIdle1Frames, s * 2, particularFrame)
+                    }
+                    else if (zarr.animVariation == 1 || zarr.eating) {
+                        this.drawZombieFrame(zarr, images.ConeHeadIdle1Frames, s * 2, particularFrame)
+                    }
+                    else if (zarr != this.zombieVictor) {
+                        this.drawZombieFrame(zarr, images.ConeHeadIdle1Frames, s * 2, particularFrame)
+                    }
+                    break
+            }
 
             if (this.showHitboxes === 1) {
                 this.ctx.strokeStyle = "red"
                 this.ctx.strokeRect(zarr.x + images.peaImage.width - this.cameraX, zarr.y, images.ZombieWalk1Frames[0].width / 1.5, images.ZombieWalk1Frames[0].height)
-            }
-
-            if (zarr.animVariation == 0) {
-                for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdleFrames, s, particularFrame)
-            }
-            else if (zarr.animVariation == 1 || zarr.eating) {
-                for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, images.ZombieIdle2Frames, s, particularFrame)
-            }
-            else if (zarr != this.zombieVictor) {
-                for (let i = 0; i < 2; i++) this.drawZombieFrame(zarr, zombieFrames, s, particularFrame)
             }
 
             this.ctx.filter = "brightness(100%)"
@@ -407,7 +429,6 @@ class Game {
     }
 
     loseAnimationFrame = 0
-
     loseAnimation() {
         this.loseAnimationFrame += this.dt
         if (this.loseAnimationFrame < 0) return
@@ -418,6 +439,9 @@ class Game {
         else if (this.loseAnimationFrame < 120) {
             this.cameraX = (((this.loseAnimationFrame - 120) / 6) ** 2) - 220
         }
+        ctx.textAlign = "left"
+        ctx.font = "35px BrianneTod"
+        ctx.fillText("Kills: " + this.killCount, -205 - this.cameraX, 240)
         this.drawSun()
     }
 
@@ -487,8 +511,9 @@ class Game {
         this.ctx.drawImage(images.background1, -220 - this.cameraX, 0)
 
         this.drawSeedBank()
-        if (!this.startAnimationFinished) this.drawZombie(this.zombies, images.ZombieIdleFrames, 1, 0.301)
-
+        if (!this.startAnimationFinished) {
+            this.drawZombie(this.zombies, images.ZombieIdleFrames, 1)
+        }
         if (this.startAnimationFinished) {
             this.drawPlant(this.sunflowers, images.SunflowerFrames, 2, 0.301)
             this.drawPlant(this.peashooters, images.PeashooterFrames, 2, 0.28)
@@ -724,13 +749,32 @@ class Game {
     }
 
 
-    zombieSpawnRate = 5000
+    zombieSpawnRate = 6000
     zombieFrame = -1650
+
+    killCount = 0
 
     zombrandYsel = [134, 233, 335, 425, 526]
 
+    rowZombies = [0, 0, 0, 0, 0]
+
     addZombie() {
-        const zombrandY = Math.round(Math.random() * 4)
+        const weightedArray = this.rowZombies.map((count, index) => ({
+            index,
+            weight: 5 - count // Higher weight for rows with fewer zombies
+        }));
+        const weightedSum = weightedArray.reduce((sum, { weight }) => sum + weight, 0);
+
+        // Use the weighted array to choose a row index
+        let zombrandY;
+        let randomWeight = Math.random() * weightedSum;
+        for (const { index, weight } of weightedArray) {
+            randomWeight -= weight;
+            if (randomWeight <= 0) {
+                zombrandY = index;
+                break;
+            }
+        }
         let zm = {
             "x": 800,
             "y": this.zombrandYsel[zombrandY] - 106.6667,
@@ -738,10 +782,12 @@ class Game {
             "row": zombrandY + 1,
             "health": 10,
             "eating": false,
-            "eatingFrame": 0
+            "eatingFrame": 0,
+            "type": Math.random() <= 0.75 || this.killCount <= 3 ? "zombie" : "conehead"
         }
 
         this.zombies.push(zm);
+        this.rowZombies[zombrandY]++
         this.zombies.sort((a, b) => (a.y !== b.y) ? a.y - b.y : a.x - b.x);
     }
     zombieEat(z) {
@@ -770,14 +816,25 @@ class Game {
     zombieActions() {
 
         this.zombieFrame += 1 * this.dt
-        if (this.zombieFrame >= this.zombieSpawnRate / 2 /*&&zombies.length <= 20*/) {
+        if (this.zombieFrame >= this.zombieSpawnRate / 2 && this.zombies.length <= 20) {
             this.addZombie()
             this.zombieFrame = 0
         }
         const zombiesDeleteable = this.zombies.filter(z => z.health <= 0)
         for (let z of zombiesDeleteable) {
-            if (z.health <= 0) this.addZombie()
-            this.zombies.splice(this.zombies.indexOf(z), 1)
+            if (z.type == "zombie") {
+                this.addZombie()
+                this.killCount++
+                this.rowZombies[z.row - 1]--
+                this.zombies.splice(this.zombies.indexOf(z), 1)
+            } else {
+                switch (z.type) {
+                    case "conehead":
+                        z.health = 10
+                        z.type = "zombie"
+                        break
+                }
+            }
             break
         }
         this.zombies.filter(z => !z.eating).forEach(z => {
@@ -785,7 +842,7 @@ class Game {
                 this.lost(z)
                 return
             }
-            if (this.activeWindow) z.x -= this.dt / 8
+            if (this.activeWindow) z.x -= this.dt / 5
             for (const plant of p.filteredPlantsArray(p => z.x <= p.x + images.PeashooterFrames[0].width / 4 && z.x >= p.x && z.row == p.row)) {
                 for (const i = 0; i < plant.length; i++) {
                     z.eating = true
@@ -803,13 +860,14 @@ class Game {
 
 
     drawPea(peaArray, s) {
-        if (peaArray == []) return
+        if (peaArray.length == 0) return
 
         const ctx = this.ctx
+        let progress = 4 * this.dt
         for (let pea of peaArray) {
             if (!this.loseAnimationPlaying) {
                 const peaIndex = peaArray.indexOf(pea)
-                pea.x += 4 * this.dt;
+                pea.x += progress
 
                 const collidingZombies = this.zombies.filter(zombie => (
                     zombie.row == pea.row &&
@@ -1017,6 +1075,12 @@ class Images {
         for (let i = 0; i <= 58; i++) {
             this.ZombieIdle2Frames[i] = new Image()
             this.ZombieIdle2Frames[i].src = "Zombies/ZombieIdle2Frames/ZombieIdle2 (" + i + ").png"
+        }
+
+        this.ConeHeadIdle1Frames = []
+        for (let i = 0; i <= 58; i++) {
+            this.ConeHeadIdle1Frames[i] = new Image()
+            this.ConeHeadIdle1Frames[i].src = "Zombies/ConeHeadIdle1Frames/ConeHeadIdle1" + i + ".png"
         }
 
         this.background1 = new Image()
