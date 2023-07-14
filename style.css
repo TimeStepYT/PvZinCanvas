@@ -39,6 +39,11 @@ canvas {
     src: url('Images/Pico129.ttf');
 }
 
+@font-face {
+    font-family: 'HouseOfTerror';
+    src: url('Images/HouseofTerror.otf');
+}
+
 #error {
     position: absolute;
     left: 0;
